@@ -1,1 +1,2 @@
-PKG "ctypes"
+S .
+PKG ctypes

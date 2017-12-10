@@ -1,5 +1,6 @@
 build:
-	ocamlfind opt -g -safe-string -package base,ctypes -linkpkg -cclib -lgherkin -cclib '-Wl,--no-as-needed' src/fileReader.ml src/olympic.ml
+	ocamlfind ocamlc -I /home/cyocum/cucumber/gherkin/c/include -I /home/cyocum/cucumber/gherkin/c/src -c -cclib -lgherkin src/gherkin_intf.c 
+	ocamlfind opt -I ./src  -g -package base -linkpkg  -cclib '-Wl,--no-as-needed' -cclib -lgherkin -o cucumber gherkin_intf.o src/pickle.ml src/gherkin.ml src/olympic.ml 
 
 clean:
 	rm src/*.cm* src/*.o src/*~
