@@ -5,5 +5,5 @@ type t = {
   }
 
 let string_of_pickle pickle =
-  let str = "lang: " ^ pickle.lang ^ "name: " ^ pickle.name in
+  let str = "lang: " ^ pickle.lang ^ " name: " ^ pickle.name in
   List.fold_left (fun accum loc -> accum ^ (Location.string_of_location loc)) str pickle.locations

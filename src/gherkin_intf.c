@@ -22,6 +22,8 @@
 
 value create_ocaml_pickle(const Pickle *);
 value create_ocaml_loc_list(const PickleLocations *);
+value create_ocaml_tags_list(const PickleTags *);
+value create_ocaml_loc(const PickleLocation *);
 
 CAMLprim value load_feature_file(value fileName) {
   setlocale(LC_ALL, "en_US.UTF-8");
@@ -75,7 +77,7 @@ CAMLprim value load_feature_file(value fileName) {
 
 value create_ocaml_pickle(const Pickle *pickle) {
   CAMLparam0();
-  CAMLlocal2(oPickle, oLocList);
+  CAMLlocal3(oPickle, oLocList, oTagList);
   oPickle = caml_alloc(2, 0);
   
   size_t lang_len = wcstombs(NULL, pickle->language, 0);
@@ -87,6 +89,7 @@ value create_ocaml_pickle(const Pickle *pickle) {
   wcstombs(name, pickle->name, name_len + 1);
 
   oLocList = create_ocaml_loc_list(pickle->locations);
+  //  oTagList = create_ocaml_tag_list(pickle->tags));
   
   Store_field(oPickle, 0, caml_copy_string(lang));
   Store_field(oPickle, 1, caml_copy_string(name));
@@ -103,10 +106,7 @@ value create_ocaml_loc_list(const PickleLocations *locs) {
   
   for(int i = 0; i < locs->location_count; ++i) {
     cons = caml_alloc(2, 0);
-    oLoc = caml_alloc(2, 0);
-
-    Store_field(oLoc, 0, caml_copy_int32(locs->locations->line));
-    Store_field(oLoc, 1, caml_copy_int32(locs->locations->column));
+    oLoc = create_ocaml_loc(&locs->locations[i]);
     
     Store_field(cons, 0, oLoc);
     Store_field(cons, 1, oLocList);
@@ -115,4 +115,52 @@ value create_ocaml_loc_list(const PickleLocations *locs) {
   }
 
   CAMLreturn(oLocList);
+}
+
+value create_ocaml_loc(const PickleLocation *loc) {
+  CAMLparam0();
+  CAMLlocal1(oLoc);
+
+  oLoc = caml_alloc(2, 0);
+
+  Store_field(oLoc, 0, caml_copy_int32(loc->line));
+  Store_field(oLoc, 1, caml_copy_int32(loc->column));
+
+  CAMLreturn(oLoc);
+}
+
+value create_ocaml_tag(const PickleTag *tag) {
+  CAMLparam0();
+  CAMLlocal1(oTag);
+
+  oTag = caml_alloc(2, 0);
+
+  Store_field(oTag, 0, create_ocaml_loc(&tag->location));
+
+  size_t name_len = wcstombs(NULL, tag->name, 0);
+  char name[name_len + 1];
+  wcstombs(name, tag->name, name_len + 1);
+  
+  Store_field(oTag, 1, caml_copy_string(name));
+
+  CAMLreturn(oTag);
+}
+
+value create_ocaml_tags_list(const PickleTags *tags) {
+  CAMLparam0();
+  CAMLlocal3(oTagList, oTag, cons);
+
+  oTagList = Val_emptylist;
+
+  for(int i = 0; i < tags->tag_count; ++i) {
+    cons = caml_alloc(2, 0);
+    oTag = create_ocaml_tag(&tags->tags[i]);
+
+    Store_field(cons, 0, oTag);
+    Store_field(cons, 1, oTagList);
+
+    oTagList = cons;
+  }
+
+  CAMLreturn(oTagList);
 }
