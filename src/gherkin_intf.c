@@ -15,6 +15,7 @@
 #include "compiler.h"
 #include "pickle_event.h"
 #include "event.h"
+#include "pickle_argument.h"
 
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
@@ -24,7 +25,9 @@ value create_ocaml_pickle(const Pickle *);
 value create_ocaml_loc_list(const PickleLocations *);
 value create_ocaml_tag_list(const PickleTags *);
 value create_ocaml_loc(const PickleLocation *);
-
+value create_ocaml_tag(const PickleTag *);
+value create_ocaml_step_list(const PickleSteps *);
+value create_ocaml_step(const PickleStep *);
 
 CAMLprim value load_feature_file(value fileName) {
   setlocale(LC_ALL, "en_US.UTF-8");
@@ -78,7 +81,7 @@ CAMLprim value load_feature_file(value fileName) {
 
 value create_ocaml_pickle(const Pickle *pickle) {
   CAMLparam0();
-  CAMLlocal3(oPickle, oLocList, oTagList);
+  CAMLlocal4(oPickle, oLocList, oTagList, oStepList);
   oPickle = caml_alloc(2, 0);
   
   size_t lang_len = wcstombs(NULL, pickle->language, 0);
@@ -91,11 +94,13 @@ value create_ocaml_pickle(const Pickle *pickle) {
 
   oLocList = create_ocaml_loc_list(pickle->locations);
   oTagList = create_ocaml_tag_list(pickle->tags);
+  oStepList = create_ocaml_step_list(pickle->steps);
   
   Store_field(oPickle, 0, caml_copy_string(lang));
   Store_field(oPickle, 1, caml_copy_string(name));
   Store_field(oPickle, 2, oLocList);
   Store_field(oPickle, 3, oTagList);
+  Store_field(oPickle, 4, oStepList);
 
   CAMLreturn(oPickle);
 }
@@ -172,4 +177,61 @@ value create_ocaml_tag_list(const PickleTags *tags) {
   }
 
   CAMLreturn(oTagList);
+}
+
+value create_ocaml_step(const PickleStep *step) {
+    CAMLparam0();
+    CAMLlocal1(oStep);
+
+    oStep = caml_alloc(3, 0);
+
+    Store_field(oStep, 0, create_ocaml_loc_list(step->locations));
+
+    size_t text_len = wcstombs(NULL, step->text, 0);
+    char text[text_len + 1];
+    wcstombs(text, step->text, text_len + 1);
+
+    Store_field(oStep, 1, caml_copy_string(text));
+
+    if(step->argument == NULL) {
+      Store_field(oStep, 2, Val_int(0));
+      CAMLreturn(oStep);
+    }
+    
+    switch(step->argument->type) {
+    case Argument_String:
+      Store_field(oStep, 2, Val_int(0));
+      break;
+    case Argument_Table:
+      Store_field(oStep, 2, Val_int(1));
+      break;
+    default:
+      Store_field(oStep, 2, Val_int(0));      
+    }
+
+    CAMLreturn(oStep);
+}
+
+value create_ocaml_step_list(const PickleSteps *steps) {
+  CAMLparam0();
+
+  CAMLlocal3(oStepList, oStep, cons);
+
+  oStepList = Val_emptylist;
+
+  if(steps == NULL) {
+    CAMLreturn(oStepList);
+  }
+  
+  for(int i = 0; i < steps->step_count; ++i) {
+    cons = caml_alloc(2, 0);
+    oStep = create_ocaml_step(&steps->steps[i]);
+    Store_field(cons, 0, oStep);
+    Store_field(cons, 1, oStepList);
+
+    oStepList = cons;
+  }
+
+  CAMLreturn(oStepList);
+  
 }
