@@ -4,5 +4,5 @@ type t = {
   }
 
 let string_of_location loc =
-  "\n[line: " ^ (Int32.to_string loc.line) ^ " column: " ^ (Int32.to_string loc.column) ^ "]\n"
+  "\nLocation [line: " ^ (Int32.to_string loc.line) ^ " column: " ^ (Int32.to_string loc.column) ^ "]\n"
   

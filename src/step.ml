@@ -8,4 +8,4 @@ type t = {
 
 let string_of_step step =  
   let loc_str = List.fold_left (fun accum loc -> accum ^ (Location.string_of_location loc)) "" step.locations in
-  "step text: " ^ step.text ^ "\n" ^ loc_str
+  "\nstep text: " ^ step.text ^ "\n" ^ loc_str
