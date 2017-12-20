@@ -67,6 +67,7 @@ CAMLprim value load_feature_file(value fileName) {
     Store_field(cons, 1, oPickleList);
 
     oPickleList = cons;
+    Event_delete((const Event*)pickle_event);
   }
   
   FileReader_delete(file_reader);
@@ -79,10 +80,10 @@ CAMLprim value load_feature_file(value fileName) {
   CAMLreturn(oPickleList);
 }
 
-value create_ocaml_pickle(const Pickle *pickle) {
+CAMLprim value create_ocaml_pickle(const Pickle *pickle) {
   CAMLparam0();
   CAMLlocal4(oPickle, oLocList, oTagList, oStepList);
-  oPickle = caml_alloc(2, 0);
+  oPickle = caml_alloc(5, 0);
   
   size_t lang_len = wcstombs(NULL, pickle->language, 0);
   char lang[lang_len + 1];
@@ -105,7 +106,7 @@ value create_ocaml_pickle(const Pickle *pickle) {
   CAMLreturn(oPickle);
 }
 
-value create_ocaml_loc_list(const PickleLocations *locs) {
+CAMLprim value create_ocaml_loc_list(const PickleLocations *locs) {
   CAMLparam0();
   CAMLlocal3(oLocList, oLoc, cons);
 
@@ -128,7 +129,7 @@ value create_ocaml_loc_list(const PickleLocations *locs) {
   CAMLreturn(oLocList);
 }
 
-value create_ocaml_loc(const PickleLocation *loc) {
+CAMLprim value create_ocaml_loc(const PickleLocation *loc) {
   CAMLparam0();
   CAMLlocal1(oLoc);
 
@@ -140,7 +141,7 @@ value create_ocaml_loc(const PickleLocation *loc) {
   CAMLreturn(oLoc);
 }
 
-value create_ocaml_tag(const PickleTag *tag) {
+CAMLprim value create_ocaml_tag(const PickleTag *tag) {
   CAMLparam0();
   CAMLlocal1(oTag);
 
@@ -157,7 +158,7 @@ value create_ocaml_tag(const PickleTag *tag) {
   CAMLreturn(oTag);
 }
 
-value create_ocaml_tag_list(const PickleTags *tags) {
+CAMLprim value create_ocaml_tag_list(const PickleTags *tags) {
   CAMLparam0();
   CAMLlocal3(oTagList, oTag, cons);
 
@@ -179,7 +180,7 @@ value create_ocaml_tag_list(const PickleTags *tags) {
   CAMLreturn(oTagList);
 }
 
-value create_ocaml_step(const PickleStep *step) {
+CAMLprim value create_ocaml_step(const PickleStep *step) {
     CAMLparam0();
     CAMLlocal1(oStep);
 
@@ -212,7 +213,7 @@ value create_ocaml_step(const PickleStep *step) {
     CAMLreturn(oStep);
 }
 
-value create_ocaml_step_list(const PickleSteps *steps) {
+CAMLprim value create_ocaml_step_list(const PickleSteps *steps) {
   CAMLparam0();
 
   CAMLlocal3(oStepList, oStep, cons);
@@ -232,6 +233,5 @@ value create_ocaml_step_list(const PickleSteps *steps) {
     oStepList = cons;
   }
 
-  CAMLreturn(oStepList);
-  
+  CAMLreturn(oStepList);  
 }
