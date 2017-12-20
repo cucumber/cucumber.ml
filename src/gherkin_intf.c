@@ -144,9 +144,9 @@ CAMLprim value create_ocaml_loc_list(const PickleLocations *locs) {
 CAMLprim value create_ocaml_loc(const PickleLocation *loc) {
   CAMLparam0();
   CAMLlocal1(oLoc);
-
+  
   oLoc = caml_alloc(2, 0);
-
+  
   Store_field(oLoc, 0, caml_copy_int32(loc->line));
   Store_field(oLoc, 1, caml_copy_int32(loc->column));
 
@@ -213,12 +213,12 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
 
     switch(step->argument->type) {
     case Argument_String:
-      arg = caml_alloc(1, 1);
+      arg = caml_alloc(1, 0);
       Store_field(arg, 0, create_ocaml_docstring(step->argument));
       Store_field(oStep, 2, arg);
       break;
     case Argument_Table:
-      arg = caml_alloc(1, 2);
+      arg = caml_alloc(1, 1);
       Store_field(arg, 0, create_ocaml_table(step->argument));
       Store_field(oStep, 2, arg);
       break;
@@ -329,7 +329,7 @@ CAMLprim value create_ocaml_table_cell(const PickleCell *cell) {
 
   oCell = caml_alloc(2, 0);
   char *val = char_of_wchar(cell->value);
-  
+    
   Store_field(oCell, 0, create_ocaml_loc(cell->location));
   Store_field(oCell, 1, caml_copy_string(val));
 
