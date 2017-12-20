@@ -13,14 +13,19 @@
 #include "ast_builder.h"
 #include "gherkin_document_event.h"
 #include "compiler.h"
-#include "pickle_event.h"
 #include "event.h"
+
 #include "pickle_argument.h"
 #include "pickle_string.h"
+#include "pickle_event.h"
+#include "pickle_table.h"
+#include "pickle_row.h"
+#include "pickle_cell.h"
 
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
 #include "caml/memory.h"
+#include "caml/fail.h"
 
 char * char_of_wchar(wchar_t *);
 CAMLprim value create_ocaml_pickle(const Pickle *);
@@ -31,6 +36,10 @@ CAMLprim value create_ocaml_tag(const PickleTag *);
 CAMLprim value create_ocaml_step_list(const PickleSteps *);
 CAMLprim value create_ocaml_step(const PickleStep *);
 CAMLprim value create_ocaml_docstring(const PickleArgument *);
+CAMLprim value create_ocaml_table(const PickleArgument *);
+CAMLprim value create_ocaml_table_row(const PickleRow *);
+CAMLprim value create_ocaml_table_row_list(const PickleRows *);
+CAMLprim value create_ocaml_table_cell(const PickleCell *);
 
 CAMLprim value load_feature_file(value fileName) {
   setlocale(LC_ALL, "en_US.UTF-8");
@@ -201,18 +210,20 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
       Store_field(oStep, 2, Val_int(0));
       CAMLreturn(oStep);
     }
-    
+
     switch(step->argument->type) {
     case Argument_String:
-      arg = caml_alloc(1, 0);
+      arg = caml_alloc(1, 1);
       Store_field(arg, 0, create_ocaml_docstring(step->argument));
       Store_field(oStep, 2, arg);
       break;
     case Argument_Table:
-      Store_field(oStep, 2, Val_int(1));
+      arg = caml_alloc(1, 2);
+      Store_field(arg, 0, create_ocaml_table(step->argument));
+      Store_field(oStep, 2, arg);
       break;
     default:
-      Store_field(oStep, 2, Val_int(0));      
+      caml_failwith("Step argument neither a String or a Table");
     }
 
     CAMLreturn(oStep);
@@ -220,7 +231,6 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
 
 CAMLprim value create_ocaml_step_list(const PickleSteps *steps) {
   CAMLparam0();
-
   CAMLlocal3(oStepList, oStep, cons);
 
   oStepList = Val_emptylist;
@@ -256,6 +266,76 @@ CAMLprim value create_ocaml_docstring(const PickleArgument *arg) {
   free(content);
 
   CAMLreturn(oDocString);
+}
+
+CAMLprim value create_ocaml_table(const PickleArgument *arg) {
+  CAMLparam0();
+  CAMLlocal1(oTable);
+
+  oTable = caml_alloc(1, 0);
+
+  const PickleTable *table = (const PickleTable *) arg;
+  
+  Store_field(oTable, 0, create_ocaml_table_row_list(table->rows));
+  
+  CAMLreturn(oTable);
+}
+
+CAMLprim value create_ocaml_table_row_list(const PickleRows *rows) {
+  CAMLparam0();
+  CAMLlocal3(oRowList, cons, oRow);
+
+  oRowList = Val_emptylist;
+
+  for(int i = 0; i < rows->row_count; ++i) {
+    cons = caml_alloc(2, 0);
+    oRow = create_ocaml_table_row(&rows->pickle_rows[i]);
+
+    Store_field(cons, 0, oRow);
+    Store_field(cons, 1, oRowList);
+
+    oRowList = cons;
+  }
+
+  CAMLreturn(oRowList);
+}
+
+CAMLprim value create_ocaml_table_row(const PickleRow *row) {
+  CAMLparam0();
+  CAMLlocal4(oCellList, oCell, oRow, cons);
+
+  oCellList = Val_emptylist;
+  
+  for(int i = 0; i < row->pickle_cells->cell_count; ++i) {
+    cons = caml_alloc(2, 0);
+    oCell = create_ocaml_table_cell(&row->pickle_cells->pickle_cells[i]);
+
+    Store_field(cons, 0, oCell);
+    Store_field(cons, 1, oCellList);
+
+    oCellList = cons;
+  }
+
+  oRow = caml_alloc(1, 0);
+
+  Store_field(oRow, 0, oCellList);
+
+  CAMLreturn(oRow);
+}
+
+CAMLprim value create_ocaml_table_cell(const PickleCell *cell) {
+  CAMLparam0();
+  CAMLlocal1(oCell);
+
+  oCell = caml_alloc(2, 0);
+  char *val = char_of_wchar(cell->value);
+  
+  Store_field(oCell, 0, create_ocaml_loc(cell->location));
+  Store_field(oCell, 1, caml_copy_string(val));
+
+  free(val);
+
+  CAMLreturn(oCell);
 }
 
 char * char_of_wchar(wchar_t *text) {

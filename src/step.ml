@@ -1,4 +1,4 @@
-type arg = DocString of Docstring.t | Table 
+type arg = DocString of Docstring.t | Table of Table.t | None
 
 type t = {
     locations : Location.t list;
@@ -9,8 +9,10 @@ type t = {
 let string_of_arg = function
   | DocString doc ->
      Docstring.string_of_docstring doc
-  | Table ->
-     "Table"
+  | Table table ->
+     Table.string_of_table table
+  | None ->
+     ""
        
 let string_of_step step =  
   let loc_str = List.fold_left (fun accum loc -> accum ^ (Location.string_of_location loc)) "" step.locations in
