@@ -96,15 +96,10 @@ CAMLprim value create_ocaml_pickle(const Pickle *pickle) {
   CAMLparam0();
   CAMLlocal4(oPickle, oLocList, oTagList, oStepList);
   oPickle = caml_alloc(5, 0);
-  
-  size_t lang_len = wcstombs(NULL, pickle->language, 0);
-  char lang[lang_len + 1];
-  wcstombs(lang, pickle->language, lang_len + 1);
-    
-  size_t name_len = wcstombs(NULL, pickle->name, 0);
-  char name[name_len + 1];
-  wcstombs(name, pickle->name, name_len + 1);
 
+  char *lang = char_of_wchar(pickle->language);
+  char *name = char_of_wchar(pickle->name);
+  
   oLocList = create_ocaml_loc_list(pickle->locations);
   oTagList = create_ocaml_tag_list(pickle->tags);
   oStepList = create_ocaml_step_list(pickle->steps);
@@ -115,6 +110,9 @@ CAMLprim value create_ocaml_pickle(const Pickle *pickle) {
   Store_field(oPickle, 3, oTagList);
   Store_field(oPickle, 4, oStepList);
 
+  free(lang);
+  free(name);
+  
   CAMLreturn(oPickle);
 }
 
@@ -159,14 +157,13 @@ CAMLprim value create_ocaml_tag(const PickleTag *tag) {
 
   oTag = caml_alloc(2, 0);
 
-  Store_field(oTag, 0, create_ocaml_loc(&tag->location));
-
-  size_t name_len = wcstombs(NULL, tag->name, 0);
-  char name[name_len + 1];
-  wcstombs(name, tag->name, name_len + 1);
+  char *name = char_of_wchar(tag->name);
   
+  Store_field(oTag, 0, create_ocaml_loc(&tag->location));
   Store_field(oTag, 1, caml_copy_string(name));
 
+  free(name);
+  
   CAMLreturn(oTag);
 }
 
