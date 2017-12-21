@@ -1,13 +1,14 @@
 type outcome = Pass | Fail | Pending
-
+type args = Datatable of int | Docstring of string | None
+                           
 let string_of_outcome = function
-  | Pass -> "P"
+  | Pass -> "."
   | Fail -> "F"
-  | Pending -> "Pend"    
+  | Pending -> "P"
                            
 type step = {
     regex : Re.re;
-    step : (Re.groups option -> outcome)
+    step : (Re.groups option -> args -> outcome)
   }
 
 type t = step list
@@ -22,7 +23,7 @@ let find str {regex; step} =
 
 let actuate step str =
   let groups = (Re.exec_opt step.regex str) in
-  step.step groups
+  step.step groups None
   
 let run cucc str =
   match (List.find_opt (find str) cucc) with
