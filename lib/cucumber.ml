@@ -32,5 +32,3 @@ let run cucc str =
   | None ->
      print_endline ("Could not find step: " ^ str);
      Pending
-
-    

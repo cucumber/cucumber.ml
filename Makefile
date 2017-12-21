@@ -5,5 +5,9 @@ build_runtime:
 build_library:
 	ocamlfind ocamlc -package re,re.perl -o cucumber lib/cucumber.mli
 	ocamlfind opt -a -I lib/ -package re,re.perl -o cucumber.cmxa lib/cucumber.ml
+
+build_test:
+	ocamlfind opt -I lib/ -package re,re.perl -linkpkg -o cucumber_test cucumber.cmxa test/test.ml
+
 clean:
 	rm src/*.cm* src/*.o src/*~ ./cucumber lib/*.cm* lib/*.o lib/*~ *.a *.o
