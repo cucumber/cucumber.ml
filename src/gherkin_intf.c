@@ -27,7 +27,7 @@
 #include "caml/memory.h"
 #include "caml/fail.h"
 
-char * char_of_wchar(wchar_t *);
+char * char_of_wchar(const wchar_t *);
 CAMLprim value create_ocaml_pickle(const Pickle *);
 CAMLprim value create_ocaml_loc_list(const PickleLocations *);
 CAMLprim value create_ocaml_tag_list(const PickleTags *);
@@ -40,6 +40,7 @@ CAMLprim value create_ocaml_table(const PickleArgument *);
 CAMLprim value create_ocaml_table_row(const PickleRow *);
 CAMLprim value create_ocaml_table_row_list(const PickleRows *);
 CAMLprim value create_ocaml_table_cell(const PickleCell *);
+CAMLprim value create_ocaml_error(const Error *);
 
 CAMLprim value load_feature_file(value fileName) {
   setlocale(LC_ALL, "en_US.UTF-8");
@@ -48,7 +49,8 @@ CAMLprim value load_feature_file(value fileName) {
   CAMLparam1(fileName);
   CAMLlocal3(oPickleList, oPickle, cons);
   char *sFileName = String_val(fileName);
-
+  int result_code = 0;
+  
   FileReader *file_reader = FileReader_new(sFileName);
   SourceEvent *source_event = SourceEvent_new(sFileName, FileReader_read(file_reader));
   TokenScanner *token_scanner = StringTokenScanner_new(source_event->source);
@@ -57,29 +59,44 @@ CAMLprim value load_feature_file(value fileName) {
   Parser* parser = Parser_new(builder);
   Compiler* compiler = Compiler_new();
   
-  Parser_parse(parser, token_matcher, token_scanner);
-
-  const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(sFileName, AstBuilder_get_result(builder));
-
-  Compiler_compile(compiler, gherkin_document_event->gherkin_document);
-
-  Event_delete((const Event*)gherkin_document_event);
+  result_code = Parser_parse(parser, token_matcher, token_scanner);
 
   oPickleList = Val_emptylist;
   
-  while(Compiler_has_more_pickles(compiler)) {
-    const PickleEvent* pickle_event = PickleEvent_new(sFileName, Compiler_next_pickle(compiler));
-    const Pickle *pickle = pickle_event->pickle;
+  if(result_code == 0) {
+    const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(sFileName, AstBuilder_get_result(builder));
 
-    oPickle = create_ocaml_pickle(pickle);
+    result_code = Compiler_compile(compiler, gherkin_document_event->gherkin_document);
 
-    cons = caml_alloc(2, 0);
+    Event_delete((const Event*)gherkin_document_event);
 
-    Store_field(cons, 0, oPickle);
-    Store_field(cons, 1, oPickleList);
+    if(result_code == 0) {
+      while(Compiler_has_more_pickles(compiler)) {
+	const PickleEvent* pickle_event = PickleEvent_new(sFileName, Compiler_next_pickle(compiler));
+	const Pickle *pickle = pickle_event->pickle;
 
-    oPickleList = cons;
-    Event_delete((const Event*)pickle_event);
+	oPickle = create_ocaml_pickle(pickle);
+
+	cons = caml_alloc(2, 0);
+
+	Store_field(cons, 0, oPickle);
+	Store_field(cons, 1, oPickleList);
+
+	oPickleList = cons;
+	Event_delete((const Event*)pickle_event);
+      }
+    }
+  } else {
+    while(Parser_has_more_errors(parser)) {
+      Error *error = Parser_next_error(parser);
+
+      char *error_str = char_of_wchar(error->error_text);
+      char *error_out = NULL;
+
+      sprintf(error_out, "%s at line %i column %i", error_str, error->location.line, error->location.column);
+      
+      caml_failwith(error_out);
+    }
   }
   
   FileReader_delete(file_reader);
@@ -220,7 +237,7 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
       Store_field(oStep, 2, arg);
       break;
     default:
-      caml_failwith("Step argument neither a String or a Table");
+      Store_field(oStep, 2, Val_int(0));
     }
 
     CAMLreturn(oStep);
@@ -335,7 +352,7 @@ CAMLprim value create_ocaml_table_cell(const PickleCell *cell) {
   CAMLreturn(oCell);
 }
 
-char * char_of_wchar(wchar_t *text) {
+char * char_of_wchar(const wchar_t *text) {
     size_t text_len = wcstombs(NULL, text, 0);
     char *text_out = malloc(sizeof(char) * text_len);
     wcstombs(text_out, text, text_len + 1);
