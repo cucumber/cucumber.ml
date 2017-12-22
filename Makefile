@@ -1,6 +1,6 @@
-build_runtime:
+build_runtime: build_library
 	ocamlfind ocamlc -g -I /home/cyocum/cucumber/gherkin/c/include -I /home/cyocum/cucumber/gherkin/c/src -c -cclib -lgherkin src/gherkin_intf.c 
-	ocamlfind opt -I ./src  -g -package base -linkpkg  -cclib '-Wl,--no-as-needed' -cclib -lgherkin -o cucumber_run gherkin_intf.o src/location.ml src/docstring.ml src/table.ml src/step.ml src/tag.ml src/pickle.ml src/gherkin.ml src/olympic.ml 
+	ocamlfind opt -I ./src -I ./lib  -g -package base,dynlink,re,re.perl -linkpkg  -cclib '-Wl,--no-as-needed' -cclib -lgherkin -o cucumber_run cucumber.cmxa gherkin_intf.o src/location.ml src/docstring.ml src/table.ml src/step.ml src/tag.ml src/pickle.ml src/gherkin.ml src/olympic.ml 
 
 build_library:
 	ocamlfind ocamlc -package re,re.perl -o cucumber lib/cucumber.mli

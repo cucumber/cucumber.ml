@@ -1,5 +1,6 @@
+
 type outcome = Pass | Fail | Pending
-type args = Datatable of int | Docstring of string | None
+type args = Datatable of int | Docstring of string | Empty
                            
 let string_of_outcome = function
   | Pass -> "."
@@ -23,7 +24,7 @@ let find str {regex; step} =
 
 let actuate step str =
   let groups = (Re.exec_opt step.regex str) in
-  step.step groups None
+  step.step groups Empty
   
 let run cucc str =
   match (List.find_opt (find str) cucc) with
@@ -31,4 +32,16 @@ let run cucc str =
      actuate step str
   | None ->
      print_endline ("Could not find step: " ^ str);
-     Pending
+     Pending  
+
+module type TEST_PLUGIN =
+  sig
+    val get_tests : unit -> t
+  end
+
+let plugin = ref None
+  
+let get_tests () : (module TEST_PLUGIN) =
+  match !plugin with
+  | Some s -> s
+  | None -> failwith "No plugin loaded"

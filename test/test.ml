@@ -1,8 +1,14 @@
+let cucc = Cucumber.given
+             Cucumber.empty
+             (Re_perl.compile_pat "not match this")
+             (fun group args ->
+               Cucumber.Pending
+             )
+
+module M : Cucumber.TEST_PLUGIN =
+  struct
+    let get_tests () = cucc
+  end
+  
 let _ =
-  let re = Re_perl.compile_pat "not match this" in
-  let cucc = Cucumber.given Cucumber.empty re (fun group args ->
-                              Cucumber.Pending
-                            )
-  in
-  print_endline (Cucumber.string_of_outcome (Cucumber.run cucc "match this"))
-           
+  Cucumber.plugin := Some (module M : Cucumber.TEST_PLUGIN)
