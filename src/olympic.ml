@@ -20,7 +20,6 @@ let _ =
   | _ ->
      let module C = (val Cucumber.get_tests () : Cucumber.TEST_PLUGIN) in
      let stepLst = List.flatten (List.rev_map (unpack_pickle) pickleLst) in
-     List.iter (fun step -> print_endline step) stepLst;
      let outcomeLst = List.rev_map (Cucumber.run (C.get_tests ())) stepLst in
      List.iter (fun o -> (print_string (Cucumber.string_of_outcome o))) outcomeLst;
      print_newline ()

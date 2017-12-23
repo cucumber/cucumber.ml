@@ -11,3 +11,6 @@ build_test: build_library
 
 clean:
 	rm src/*.cm* src/*.o src/*~ ./cucumber lib/*.cm* lib/*.o lib/*~ *.a *.o *.cm*
+
+install_library:
+	ocamlfind install cucumber META ./lib/cucumber.cmx ./lib/cucumber.cmi ./lib/cucumber.o

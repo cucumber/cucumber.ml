@@ -1,0 +1,5 @@
+name="cucumber"
+description="Behaviour Driven Development library for OCaml"
+version="0.1"
+requires="re,re.perl"
+archive(native)="cucumber.cmx"

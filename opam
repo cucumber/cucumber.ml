@@ -1,0 +1,10 @@
+opam-version: "1.2"
+name: "olympic"
+version: "0.1"
+author: "Christopher Yocum <cyocum@gmail.com>"
+maintainer "Christopher Yocum <cyocum@gmail.com>"
+build: [
+       [make "build_library"]
+]
+install: [make "install_lib"]
+remove: ["ocamlfind" "remove" "cucumber"]
