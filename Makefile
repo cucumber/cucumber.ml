@@ -7,7 +7,7 @@ build_library:
 	ocamlfind opt -a -I lib/ -package re,re.perl -o cucumber.cmxa lib/cucumber.ml
 
 build_test: build_library
-	ocamlfind opt -shared -I lib/ -package re,re.perl -o test.cmxs cucumber.cmxa test/test.ml
+	ocamlfind opt -shared -I lib/ -package re,re.perl -linkpkg -o test.cmxs cucumber.cmxa test/test.ml
 
 clean:
 	rm src/*.cm* src/*.o src/*~ ./cucumber lib/*.cm* lib/*.o lib/*~ *.a *.o *.cm*

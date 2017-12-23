@@ -1,8 +1,6 @@
 let load_test_plugin fname =
   let fname =  Dynlink.adapt_filename fname in
   try
-    Dynlink.loadfile "/home/cyocum/.opam/4.05.0+flambda/lib/re/re.cmxs";
-    Dynlink.loadfile "/home/cyocum/.opam/4.05.0+flambda/lib/re/re_perl.cmxs";
     Dynlink.loadfile fname
   with
   | (Dynlink.Error err) as e ->
@@ -13,8 +11,8 @@ let unpack_pickle pickle =
   List.rev_map (fun s -> s.Step.text) pickle.Pickle.steps
      
 let _ =
-  load_test_plugin "/home/cyocum/olympic/test.cmxs";
-  let pickleLst = Gherkin.load_feature_file Sys.argv.(1) in
+  load_test_plugin Sys.argv.(1);
+  let pickleLst = Gherkin.load_feature_file Sys.argv.(2) in
   match pickleLst with
   | [] -> print_endline "Empty Pickle list"
   | _ ->
