@@ -1,1 +1,1 @@
-external load_feature_file : string -> Pickle.t list = "load_feature_file"
+external load_feature_file : string -> Cucumber.Pickle.t list = "load_feature_file"

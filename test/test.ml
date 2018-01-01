@@ -1,14 +1,14 @@
-let cucc = Cucumber.given
-             Cucumber.empty
-             (Re_perl.compile_pat "not match this")
+let cucc = Cucumber.Lib.given
+             Cucumber.Lib.empty
+             (Re_perl.compile_pat "the minimalism")
              (fun group args ->
-               Cucumber.Pending
+               Cucumber.Lib.Pass
              )
 
-module M : Cucumber.TEST_PLUGIN =
+module M : Cucumber.Lib.TEST_PLUGIN =
   struct
     let get_tests () = cucc
   end
   
 let _ =
-  Cucumber.plugin := Some (module M : Cucumber.TEST_PLUGIN)
+  Cucumber.Lib.plugin := Some (module M : Cucumber.Lib.TEST_PLUGIN)
