@@ -77,12 +77,15 @@ CAMLprim value load_feature_file(value fileName) {
 
 	oPickle = create_ocaml_pickle(pickle);
 
+	
 	cons = caml_alloc(2, 0);
 
 	Store_field(cons, 0, oPickle);
 	Store_field(cons, 1, oPickleList);
 
 	oPickleList = cons;
+
+	
 	Event_delete((const Event*)pickle_event);
       }
     }

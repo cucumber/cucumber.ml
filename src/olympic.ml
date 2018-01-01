@@ -8,7 +8,7 @@ let load_test_plugin fname =
      raise e
 
 let unpack_pickle pickle =
-  List.rev_map (fun s -> s.Cucumber.Step.text) pickle.Cucumber.Pickle.steps
+  pickle.Cucumber.Pickle.steps
      
 let _ =
   load_test_plugin Sys.argv.(1);

@@ -1,11 +1,10 @@
 type outcome = Pass | Fail | Pending
 
-type args = Datatable of int | Docstring of string | Empty
 type t
 
 val empty : t
-val given : t -> Re.re -> (Re.groups option -> args -> outcome) -> t
-val run : t -> string -> outcome
+val given : t -> Re.re -> (Re.groups option -> Step.arg -> outcome) -> t
+val run : t -> Step.t -> outcome
 val string_of_outcome : outcome -> string
 
 module type TEST_PLUGIN =
