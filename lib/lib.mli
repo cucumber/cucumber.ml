@@ -1,9 +1,11 @@
-type outcome = Pass | Fail | Pending
+type outcome = Pass | Fail | Pending | Undefined
 
 type t
 
 val empty : t
-val given : t -> Re.re -> (Re.groups option -> Step.arg -> outcome) -> t
+val _Given : t -> Re.re -> (Re.groups option -> Step.arg -> outcome) -> t
+val _When : t -> Re.re -> (Re.groups option -> Step.arg -> outcome) -> t
+val _Then : t -> Re.re -> (Re.groups option -> Step.arg -> outcome) -> t
 val run : t -> Step.t -> outcome
 val string_of_outcome : outcome -> string
 

@@ -1,9 +1,10 @@
-type outcome = Pass | Fail | Pending
+type outcome = Pass | Fail | Pending | Undefined
                            
 let string_of_outcome = function
   | Pass -> "."
   | Fail -> "F"
   | Pending -> "P"
+  | Undefined -> "U"
                            
 type step = {
     regex : Re.re;
@@ -14,8 +15,11 @@ type t = step list
 
 let empty = []
        
-let given cucc re f =
+let _Given cucc re f =
   { regex = re; step = f } :: cucc
+
+let _When = _Given
+let _Then = _Given
   
 let find str {regex; step} =
   Re.execp regex str
