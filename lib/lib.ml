@@ -29,13 +29,17 @@ let actuate user_step str arg =
   user_step.step groups arg
   
 let run cucc step =
-  match (List.find_opt (find step.Step.text) cucc) with
-  | Some user_step ->
+  match (List.filter (find step.Step.text) cucc) with
+  | [user_step] ->
      actuate user_step step.Step.text step.Step.argument
-  | None ->
+  | [] ->
      print_endline ("Could not find step: " ^ step.Step.text);
-     Pending  
+     Undefined
+  | _ ->
+     print_endline ("Ambigious match: " ^ step.Step.text);
+     Undefined
 
+     
 module type TEST_PLUGIN =
   sig
     val get_tests : unit -> t
