@@ -8,15 +8,19 @@ let foo group args =
   | _ ->
      Cucumber.Lib.Fail
 
-    
-let cucc =
-    let x = Cucumber.Lib.given
+let cucc = 
+    let x = Cucumber.Lib._Given
               Cucumber.Lib.empty
-              (Re_perl.compile_pat "a DocString with escaped separator inside")
+              (Re_perl.compile_pat "a simple DocString")
               foo
     in
-    Cucumber.Lib.given
+    let y = Cucumber.Lib._Given
       x
+      (Re_perl.compile_pat "DocString with alternative separator inside")
+      foo
+    in
+    Cucumber.Lib._Given
+      y
       (Re_perl.compile_pat "DocString with alternative separator inside")
       foo
     
