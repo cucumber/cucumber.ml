@@ -1,8 +1,8 @@
 # Cucumber.ml
 
 This implements the core Cucumber feature file language, Gherkin, and
-assocated library for specifying the execution of those tests for the
-OCaml programming language.
+assocated library for specifying the execution of those scenarios for
+the OCaml programming language.
 
 WARNING: This is still under heavy development and is provided as-is.
 This is for the adventurous who do not mind rough edges and
@@ -11,15 +11,14 @@ half-implemented features.  All pull-requests are gratefully accepted.
 ## libgherkin.so
 
 To be able to run the code, you will need to have compiled and
-installed the Gherkin library as a shared object in your Linux
-distribution (so that it will be avaliable to the linker at run time).
-You can do this by checking out the Cucumber project from Github
-[Cucumber](https://github.com/cucumber/cucumber) and applying pull
-request number [321](https://github.com/cucumber/cucumber/pull/321)
-then compiling the .so file and installing it in /usr/lib (or
-equivalent for your OS).  To compile the test runner (more below), you
-will need to install the .h files in /usr/include (or equivalent for
-your OS).
+installed the Gherkin library as a shared object in your OS (so that
+it will be avaliable to the linker at run time).  You can do this by
+checking out the Cucumber project from Github [Cucumber gherkin-c](
+https://github.com/cucumber/gherkin-c) and applying the branch
+[libs_so](https://github.com/cucumber/gherkin-c/tree/libs_so) then
+compiling the .so file and installing it in /usr/lib (or equivalent
+for your OS).  To compile the test runner (more below), you will need
+to install the .h files in /usr/include (or equivalent for your OS).
 
 ## Overall Structure
 
@@ -30,7 +29,7 @@ to register test functions against the feature file.  This requires
 the use of the Re regular expression library.  For instance (see the
 test directory for more information),
 
-```
+```ocaml
 let foo group args = 
   match args with
   | Cucumber.Step.DocString ds ->
@@ -57,11 +56,12 @@ let _ =
 
 ```
 
-The second part is the executable which will parse the Gherkin feature
+The second part is the executable which will parse the Gherkin files
 files into an executable form, using libgherkin described above, then
-run the tests against the matched test functions.  This will then
-report back on the execution status of each step.  Linking the user
-created tests bound by Cucumber.Lib is done by using the OCaml
+run the tests against the matched step definition functions.  This
+will then report back on the execution status of each step.  Linking
+the user created tests bound by Cucumber.Lib is done by using the
+OCaml
 [Dynlink](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Dynlink.html)
 module plugin system via the TEST_MODULE module type and first class
 module unpacking.
