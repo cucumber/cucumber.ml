@@ -18,7 +18,8 @@ https://github.com/cucumber/gherkin-c) and applying the branch
 [libs_so](https://github.com/cucumber/gherkin-c/tree/libs_so) then
 compiling the .so file and installing it in /usr/lib (or equivalent
 for your OS).  To compile the test runner (more below), you will need
-to install the .h files in /usr/include (or equivalent for your OS).
+to use the make install make target in the [gherkin-c](
+https://github.com/cucumber/gherkin-c) repository.
 
 ## Overall Structure
 
