@@ -57,11 +57,10 @@ let _ =
 ```
 
 The second part is the executable which will parse the Gherkin files
-files into an executable form, using libgherkin described above, then
-run the tests against the matched step definition functions.  This
-will then report back on the execution status of each step.  Linking
-the user created tests bound by Cucumber.Lib is done by using the
-OCaml
+into an executable form, using libgherkin described above, then run
+the tests against the matched step definition functions.  This will
+then report back on the execution status of each step.  Linking the
+user created tests bound by Cucumber.Lib is done by using the OCaml
 [Dynlink](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Dynlink.html)
 module plugin system via the TEST_MODULE module type and first class
 module unpacking.
