@@ -14,12 +14,8 @@ To be able to run the code, you will need to have compiled and
 installed the Gherkin library as a shared object in your OS (so that
 it will be avaliable to the linker at run time).  You can do this by
 checking out the Cucumber project from Github [Cucumber gherkin-c](
-https://github.com/cucumber/gherkin-c) and applying the branch
-[libs_so](https://github.com/cucumber/gherkin-c/tree/libs_so) then
-compiling the .so file and installing it in /usr/lib (or equivalent
-for your OS).  To compile the test runner (more below), you will need
-to use the make install make target in the [gherkin-c](
-https://github.com/cucumber/gherkin-c) repository.
+https://github.com/cucumber/gherkin-c) then compiling the .so file and
+installing the shared library for your OS.
 
 ## Overall Structure
 
@@ -76,5 +72,6 @@ For instance,
 
 This will report back using the compact notation for Cucumber (dots
 for pass, F or fail, P for pending, and U for undefined).
+
 
 
