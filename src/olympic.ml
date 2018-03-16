@@ -13,7 +13,7 @@ let unpack_pickle pickle =
 let _ =
   (* the below is to force linking with the camlCamlinternalOO module 
      see https://discuss.ocaml.org/t/objects-and-dynlink/1720 *)
-  let obj = object end in
+  let _obj = object end in
   load_test_plugin Sys.argv.(1);
   let pickleLst = Gherkin.load_feature_file Sys.argv.(2) in
   match pickleLst with
