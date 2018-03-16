@@ -357,7 +357,7 @@ CAMLprim value create_ocaml_table_cell(const PickleCell *cell) {
 
 char * char_of_wchar(const wchar_t *text) {
     size_t text_len = wcstombs(NULL, text, 0);
-    char *text_out = malloc(sizeof(char) * text_len);
+    char *text_out = malloc(sizeof(char) * (text_len + 1));
     wcstombs(text_out, text, text_len + 1);
 
     return text_out;
