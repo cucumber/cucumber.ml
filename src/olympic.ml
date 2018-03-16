@@ -21,7 +21,7 @@ let _ =
   | [] -> print_endline "Empty Pickle list"
   | _ ->
      let module C = (val Cucumber.Lib.get_tests () : Cucumber.Lib.TEST_PLUGIN) in
-     let stepLst = List.flatten (List.map (unpack_pickle) pickleLst) in
-     let outcomeLst = List.map (Cucumber.Lib.run (C.get_tests ())) stepLst in
+     let stepLst = List.flatten (Base.List.map pickleLst (unpack_pickle)) in
+     let outcomeLst = Base.List.map stepLst (Cucumber.Lib.run (C.get_tests ())) in
      List.iter (fun o -> (print_string (Cucumber.Lib.string_of_outcome o))) outcomeLst;
      print_newline ()
