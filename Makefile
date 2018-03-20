@@ -11,11 +11,12 @@ build_runtime:
 	ocamlfind opt -I ./src -g -package base,dynlink,re,re.perl,cucumber -linkpkg -linkall -cclib '-Wl,--no-as-needed' -cclib -lgherkin -o cucumber_run gherkin_intf.o  src/gherkin.ml src/olympic.ml 
 
 build_test: 
-	ocamlfind opt -shared -package re,re.perl,cucumber -linkpkg -linkall -o test.cmxs test/test.ml 
+	ocamlfind opt -shared -package re,re.perl,cucumber -linkpkg -o test.cmxs test/test.ml 
 
 clean:
 	rm src/*.cm* src/*.o src/*~ ./cucumber lib/*.cm* lib/*.o lib/*~ *.a *.o *.cm* ./cucumber_run
 
 install_library: build_library
+	ocamlfind remove cucumber
 	ocamlfind install cucumber META ./cucumber.cmx ./cucumber.cmi ./cucumber.o ./cucumber.cmxa
 	rm ./cucumber.cmx ./cucumber.cmi ./cucumber.o ./cucumber.cmxa
