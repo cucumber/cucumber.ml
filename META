@@ -1,5 +1,5 @@
 name="cucumber"
 description="Behaviour Driven Development library for OCaml"
 version="0.1"
-requires="re,re.perl"
-archive(native)="cucumber.cmx"
+requires="re,re.perl,base"
+archive(native)="cucumber.cmx gherkin_intf.o"

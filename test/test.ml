@@ -1,33 +1,59 @@
-let foo group args = 
-  match args with
-  | Cucumber.Step.DocString ds ->
-     print_endline ds.Cucumber.Docstring.content;
-     Cucumber.Lib.Pass
-  | Cucumber.Step.Table table ->
-     Cucumber.Lib.Pass
-  | _ ->
-     Cucumber.Lib.Fail
+type world = { foo : bool }
 
-let cucc = 
-    let x = Cucumber.Lib._Given
-              Cucumber.Lib.empty
-              (Re_perl.compile_pat "a simple DocString")
-              foo
-    in
-    let y = Cucumber.Lib._Given
-      x
-      (Re_perl.compile_pat "DocString with alternative separator inside")
-      foo
-    in
+let man_state curr_state next_state = 
+    match curr_state with
+  | Some x ->
+     begin
+       print_endline ("my state is " ^ (string_of_bool x.foo));
+       (Some { foo = next_state }, Cucumber.Lib.Pass)
+     end
+  | None ->
+     begin
+       print_endline "I have no state";
+       (Some { foo = next_state }, Cucumber.Lib.Pass)
+     end  
+
+(* users can use the pipeline operator *)
+let foo = Cucumber.Lib.empty
+          |>
+            (Cucumber.Lib._Given
+              (Re.Perl.compile_pat "a simple DocString")
+              (fun state group args ->
+                print_endline "Given";
+                Cucumber.Lib.pass_with_state { foo = true}))
+          |>
+            Cucumber.Lib._When
+              (Re.Perl.compile_pat "I run my test")
+              (fun state group args ->
+                print_endline "When";
+                man_state state false)
+          |>
+            Cucumber.Lib._Then
+              (Re.Perl.compile_pat "I should receive the test results")
+              (fun state group args ->
+                print_endline "Then";              
+                man_state state true)            
+
+(* or they can use a list then use a fold function to build up the run *)
+let bar = [
     Cucumber.Lib._Given
-      y
-      (Re_perl.compile_pat "DocString with alternative separator inside")
-      foo
-    
-module M : Cucumber.Lib.TEST_PLUGIN =
-  struct
-    let get_tests () = cucc
-  end
-  
+      (Re.Perl.compile_pat "a simple DocString")
+      (fun state group args ->
+        print_endline "Given";
+        man_state state true);
+    Cucumber.Lib._When
+            (Re.Perl.compile_pat "I run my test")
+            (fun state group args ->
+              print_endline "When";
+              man_state state false);
+    Cucumber.Lib._Then
+            (Re.Perl.compile_pat "I should receive the test results")
+            (fun state group args ->
+              print_endline "Then";              
+              man_state state true)
+  ]
+
+          
 let _ =
-  Cucumber.Lib.plugin := Some (module M : Cucumber.Lib.TEST_PLUGIN)
+  let _cucc = Base.List.fold bar ~init:Cucumber.Lib.empty ~f:(fun accum stepdef -> stepdef accum) in
+  Cucumber.Lib.execute foo

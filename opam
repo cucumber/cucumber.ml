@@ -6,5 +6,5 @@ maintainer "Christopher Yocum <cyocum@gmail.com>"
 build: [
        [make "build_library"]
 ]
-install: [make "install_lib"]
+install: [make "install_library"]
 remove: ["ocamlfind" "remove" "cucumber"]

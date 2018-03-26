@@ -1,7 +1,7 @@
 # Cucumber.ml
 
 This implements the core Cucumber feature file language, Gherkin, and
-assocated library for specifying the execution of those scenarios for
+associated library for specifying the execution of those scenarios for
 the OCaml programming language.
 
 WARNING: This is still under heavy development and is provided as-is.
@@ -12,62 +12,71 @@ half-implemented features.  All pull-requests are gratefully accepted.
 
 To be able to run the code, you will need to have compiled and
 installed the Gherkin library as a shared object in your OS (so that
-it will be avaliable to the linker at run time).  You can do this by
+it will be available to the linker at run time).  You can do this by
 checking out the Cucumber project from Github [Cucumber gherkin-c](
 https://github.com/cucumber/gherkin-c) then compiling the .so file and
 installing the shared library for your OS.
 
 ## Overall Structure
 
-The overall structure of the project is in two parts. 
-
-The first part is the Cucumber.Lib module which is the user interface
-to register test functions against the feature file.  This requires
-the use of the Re regular expression library.  For instance (see the
-test directory for more information),
+Cucumber.ml is a library that is used to create an executable runtime
+of step definitions.  This means that the library assumes that, once
+`execute` is called, the library will read the command line arguments
+for feature files.  The user of the library does not need to specify
+command line options as the library will read them itself to determine
+what feature files an other things to run.  At the present time, it
+will only run one feature file.  This will change in future versions
+as more features are added (see WARNING above).
 
 ```ocaml
-let foo group args = 
-  match args with
-  | Cucumber.Step.DocString ds ->
-     print_endline ds.Cucumber.Docstring.content;
-     Cucumber.Lib.Pass
-  | Cucumber.Step.Table table ->
-     Cucumber.Lib.Pass
-  | _ ->
-     Cucumber.Lib.Fail
+type world = { foo : bool }
 
-let cucc = 
-     Cucumber.Lib._Given
-	          Cucumber.Lib.empty
-              (Re_perl.compile_pat "a simple DocString")
-              foo
-			  
-module M : Cucumber.Lib.TEST_PLUGIN =
-  struct
-    let get_tests () = cucc
-  end
-  
+let man_state curr_state next_state = 
+    match curr_state with
+  | Some x ->
+     begin
+       print_endline ("my state is " ^ (string_of_bool x.foo));
+       (Some { foo = next_state }, Cucumber.Lib.Pass)
+     end
+  | None ->
+     begin
+       print_endline "I have no state";
+       (Some { foo = next_state }, Cucumber.Lib.Pass)
+     end
+
+(* users can use the pipeline operator *)
+let foo = Cucumber.Lib.empty
+          |>
+            (Cucumber.Lib._Given
+              (Re.Perl.compile_pat "a simple DocString")
+              (fun state group args ->
+                print_endline "Given";
+                Cucumber.Lib.pass_with_state { foo = true}))
+          |>
+            Cucumber.Lib._When
+              (Re.Perl.compile_pat "I run my test")
+              (fun state group args ->
+                print_endline "When";
+                man_state state false)
+          |>
+            Cucumber.Lib._Then
+              (Re.Perl.compile_pat "I should receive the test results")
+              (fun state group args ->
+                print_endline "Then";
+                man_state state true)
+
 let _ =
-  Cucumber.Lib.plugin := Some (module M : Cucumber.Lib.TEST_PLUGIN)
+  Cucumber.Lib.execute foo
 
 ```
 
-The second part is the executable which will parse the Gherkin files
-into an executable form, using libgherkin described above, then run
-the tests against the matched step definition functions.  This will
-then report back on the execution status of each step.  Linking the
-user created tests bound by Cucumber.Lib is done by using the OCaml
-[Dynlink](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Dynlink.html)
-module plugin system via the TEST_MODULE module type and first class
-module unpacking.
+See the test/test.ml file for more information.
 
-Once the test module and the runtime has been built (see the Makefile
-for an instance of building the test module), you can run the tests.
-For instance,
+Once the executable has been built (see the Makefile for an instance
+of building the test module), you can run the tests.  For instance,
 
 ```
-./cucumber_run test.cmxs foo.feature
+./cucumber_run foo.feature
 ```
 
 This will report back using the compact notation for Cucumber (dots

@@ -1,22 +1,19 @@
 .PHONY: clean install_library
 
 build_library:
-	ocamlfind ocamlc -I lib/ -for-pack Cucumber -c -package re,re.perl lib/location.mli lib/docstring.mli lib/table.ml lib/step.mli lib/lib.mli
-	ocamlfind opt -I lib/ -for-pack Cucumber -package re,re.perl -c lib/lib.ml lib/location.ml lib/docstring.ml lib/table.ml lib/tag.ml lib/step.ml lib/pickle.ml
-	ocamlfind opt -I lib/ -pack -package re,re.perl -o cucumber.cmx location.cmx docstring.cmx table.cmx tag.cmx step.cmx pickle.cmx lib.cmx
-	ocamlfind opt -I lib/ -pack -package re,re.perl -o cucumber.cmxa location.cmx docstring.cmx table.cmx tag.cmx step.cmx pickle.cmx lib.cmx
-
-build_runtime:
-	ocamlfind ocamlc -g -I /usr/include/gherkin -c -cclib -lgherkin src/gherkin_intf.c 
-	ocamlfind opt -I ./src -g -package base,dynlink,re,re.perl,cucumber -linkpkg -linkall -cclib '-Wl,--no-as-needed' -cclib -lgherkin -o cucumber_run gherkin_intf.o  src/gherkin.ml src/olympic.ml 
+	ocamlfind opt -g -I /usr/include/gherkin -I lib/ -cclib -lgherkin -o lib/gherkin_intf.o lib/gherkin_intf.c 
+	ocamlfind opt -c -I lib/ -for-pack Cucumber -package re,re.perl,base -c lib/location.mli lib/docstring.mli lib/table.ml lib/step.mli lib/lib.mli
+	ocamlfind opt -c -I lib/ -for-pack Cucumber -package re,re.perl,base -c lib/location.ml lib/docstring.ml lib/table.ml lib/tag.ml lib/step.ml lib/pickle.ml lib/gherkin.ml lib/lib.ml
+	ocamlfind opt -I lib/ -pack -package re,re.perl,base -o cucumber.cmx -cclib '-Wl,--no-as-needed' -cclib -lgherkin gherkin_intf.o location.cmx docstring.cmx table.cmx tag.cmx step.cmx pickle.cmx gherkin.cmx lib.cmx  
 
 build_test: 
-	ocamlfind opt -shared -package re,re.perl,cucumber -linkpkg -o test.cmxs test/test.ml 
+	ocamlfind opt -g -package re,re.perl,cucumber,base -linkpkg -cclib -lgherkin -o cucumber_run test/test.ml 
 
 clean:
+	ocamlfind remove cucumber
 	rm src/*.cm* src/*.o src/*~ ./cucumber lib/*.cm* lib/*.o lib/*~ *.a *.o *.cm* ./cucumber_run
 
+
 install_library: build_library
-	ocamlfind remove cucumber
-	ocamlfind install cucumber META ./cucumber.cmx ./cucumber.cmi ./cucumber.o ./cucumber.cmxa
-	rm ./cucumber.cmx ./cucumber.cmi ./cucumber.o ./cucumber.cmxa
+	ocamlfind install cucumber META ./cucumber.cmi ./cucumber.o ./cucumber.cmx ./gherkin_intf.o
+	rm ./cucumber.cmx ./cucumber.cmi ./cucumber.o ./gherkin_intf.o
