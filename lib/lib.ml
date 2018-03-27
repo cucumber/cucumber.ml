@@ -9,15 +9,32 @@ let string_of_outcome = function
                
 type 'a step = {
     regex : Re.re;
-    step : ('a option -> Re.groups option -> Step.arg -> ('a option * outcome))
+    step : ('a option -> Re.groups option -> Step.arg -> ('a option * outcome))    
   }
 
-type 'a t = 'a step list
+type 'a t = {
+    before_steps : (string -> unit) list;
+    after_steps : (string -> unit) list;
+    steps : 'a step list    
+  }
 
-let empty = []
+let empty = {
+    after_steps = [];
+    before_steps = [];
+    steps = [];
+  }
 
+let _Before f cucc =
+  let reg_before_hooks = cucc.before_steps in
+  { cucc with before_steps = f :: reg_before_hooks }
+
+let _After f cucc =
+  let reg_after_hooks = cucc.after_steps in
+  { cucc with after_steps = f :: reg_after_hooks }
+  
 let _Given re f cucc =
-  { regex = re; step = f } :: cucc
+  let reg_steps = cucc.steps in
+  { cucc with steps = { regex = re; step = f }::reg_steps }
 
 let _When = _Given
 let _Then = _Given
@@ -29,8 +46,8 @@ let actuate user_step str arg state =
   let groups = (Re.exec_opt user_step.regex str) in
   user_step.step state groups arg
   
-let run (cucc : 'a t) state step =
-  match (List.filter (find step.Step.text) cucc) with
+let run cucc state step =
+  match (List.filter (find step.Step.text) cucc.steps) with
   | [user_step] ->
      actuate user_step step.Step.text step.Step.argument state
   | [] ->
@@ -55,14 +72,26 @@ let extract_last_state_run cucc outcome_accum step =
   | (state, out)::xs ->
      let outcome = run cucc state step in
      outcome::outcome_accum
-     
+
+let execute_before_hooks before_hooks pickel_name =
+  Base.List.iter before_hooks (fun f -> f pickel_name)
+
+let execute_after_hooks after_hooks pickel_name =
+  Base.List.iter after_hooks (fun f -> f pickel_name)
+
+let run_pickle cucc p =
+  let stepLst = p.Pickle.steps in
+  execute_before_hooks cucc.before_steps p.Pickle.name;
+  let outcomeLst = Base.List.fold stepLst ~init:[] ~f:(extract_last_state_run cucc) in
+  execute_after_hooks cucc.after_steps p.Pickle.name;
+  outcomeLst
+  
 let execute cucc =
   let pickleLst = load_feature_file Sys.argv.(1) in
   match pickleLst with
   | [] -> print_endline "Empty Pickle list"
   | _ ->
-     let stepLst = List.flatten (Base.List.map pickleLst (unpack_pickle)) in
-     let outcomeLst = Base.List.fold stepLst ~init:[] ~f:(extract_last_state_run cucc) in
+     let outcomeLst = List.flatten (Base.List.map pickleLst (run_pickle cucc)) in
      Base.List.iter outcomeLst (fun (state, out) -> (print_string (string_of_outcome out))) ;
      print_newline ()         
 
