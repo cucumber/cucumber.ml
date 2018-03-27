@@ -71,10 +71,10 @@ let extract_last_state_run cucc outcome_accum step =
      outcome::outcome_accum
 
 let execute_before_hooks before_hooks pickel_name =
-  Base.List.iter before_hooks (fun f -> f pickel_name)
+  Base.List.iter (Base.List.rev before_hooks) (fun f -> f pickel_name)
 
 let execute_after_hooks after_hooks pickel_name =
-  Base.List.iter after_hooks (fun f -> f pickel_name)
+  Base.List.iter (Base.List.rev after_hooks) (fun f -> f pickel_name)
 
 let run_pickle cucc p =
   execute_before_hooks cucc.before_hooks p.Pickle.name;
