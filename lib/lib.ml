@@ -13,24 +13,24 @@ type 'a step = {
   }
 
 type 'a t = {
-    before_steps : (string -> unit) list;
-    after_steps : (string -> unit) list;
+    before_hooks : (string -> unit) list;
+    after_hooks : (string -> unit) list;
     steps : 'a step list    
   }
 
 let empty = {
-    after_steps = [];
-    before_steps = [];
+    after_hooks = [];
+    before_hooks = [];
     steps = [];
   }
 
-let _Before cucc f  =
-  let reg_before_hooks = cucc.before_steps in
-  { cucc with before_steps = f :: reg_before_hooks }
+let _Before f cucc =
+  let reg_before_hooks = cucc.before_hooks in
+  { cucc with before_hooks = f :: reg_before_hooks }
 
-let _After cucc f  =
-  let reg_after_hooks = cucc.after_steps in
-  { cucc with after_steps = f :: reg_after_hooks }
+let _After f cucc =
+  let reg_after_hooks = cucc.after_hooks in
+  { cucc with after_hooks = f :: reg_after_hooks }
   
 let _Given re f cucc =
   let reg_steps = cucc.steps in
@@ -60,9 +60,6 @@ let run cucc state step =
 let load_feature_file fname =
   let pickleLst = Gherkin.load_feature_file fname in
   List.rev_map (fun p -> {p with Pickle.steps = (List.rev p.Pickle.steps)}) pickleLst
-
-let unpack_pickle pickle =
-  pickle.Pickle.steps
   
 let extract_last_state_run cucc outcome_accum step =
   match outcome_accum with
@@ -80,10 +77,9 @@ let execute_after_hooks after_hooks pickel_name =
   Base.List.iter after_hooks (fun f -> f pickel_name)
 
 let run_pickle cucc p =
-  let stepLst = p.Pickle.steps in
-  execute_before_hooks cucc.before_steps p.Pickle.name;
-  let outcomeLst = Base.List.fold stepLst ~init:[] ~f:(extract_last_state_run cucc) in
-  execute_after_hooks cucc.after_steps p.Pickle.name;
+  execute_before_hooks cucc.before_hooks p.Pickle.name;
+  let outcomeLst = Base.List.fold p.Pickle.steps ~init:[] ~f:(extract_last_state_run cucc) in
+  execute_after_hooks cucc.after_hooks p.Pickle.name;
   outcomeLst
   
 let execute cucc =
