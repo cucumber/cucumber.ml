@@ -24,11 +24,11 @@ let empty = {
     steps = [];
   }
 
-let _Before f cucc =
+let _Before cucc f  =
   let reg_before_hooks = cucc.before_steps in
   { cucc with before_steps = f :: reg_before_hooks }
 
-let _After f cucc =
+let _After cucc f  =
   let reg_after_hooks = cucc.after_steps in
   { cucc with after_steps = f :: reg_after_hooks }
   
