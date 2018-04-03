@@ -12,8 +12,6 @@ let man_state curr_state next_state =
        print_endline "I have no state";
        (Some { foo = next_state }, Cucumber.Lib.Pass)
      end  
-
-let (>>=) = Base.Option.(>>=)
      
 (* users can use the pipeline operator *)
 let foo = Cucumber.Lib.empty
