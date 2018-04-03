@@ -12,12 +12,21 @@ let man_state curr_state next_state =
        print_endline "I have no state";
        (Some { foo = next_state }, Cucumber.Lib.Pass)
      end  
-
+     
 (* users can use the pipeline operator *)
 let foo = Cucumber.Lib.empty
           |>
+            Cucumber.Lib._After
+              (fun str ->
+                print_endline "After step";
+              )
+          |> Cucumber.Lib._Before
+               (fun str ->
+                 print_endline "Before step";
+               )
+          |>
             (Cucumber.Lib._Given
-              (Re.Perl.compile_pat "a simple DocString")
+              (Re.Perl.compile_pat "a simple (\\w+)")
               (fun state group args ->
                 print_endline "Given";
                 Cucumber.Lib.pass_with_state { foo = true}))
