@@ -5,12 +5,12 @@ let man_state curr_state next_state =
   | Some x ->
      begin
        print_endline ("my state is " ^ (string_of_bool x.foo));
-       (Some { foo = next_state }, Cucumber.Lib.Pass)
+       (Some { foo = next_state }, Cucumber.Outcome.Pass)
      end
   | None ->
      begin
        print_endline "I have no state";
-       (Some { foo = next_state }, Cucumber.Lib.Pass)
+       (Some { foo = next_state }, Cucumber.Outcome.Pass)
      end  
      
 (* users can use the pipeline operator *)
