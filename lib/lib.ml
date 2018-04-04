@@ -33,14 +33,14 @@ let _Then = _Given
 let find str {regex; stepdef} =
   Re.execp regex str
 
-let actuate user_step str arg state =
-  let groups = (Re.exec_opt user_step.regex str) in
-  user_step.stepdef state groups arg
+let actuate user_step step state =
+  let groups = Step.find_groups step user_step.regex in
+  user_step.stepdef state groups (Step.argument step) 
 
 let run cucc state step =
   match (List.filter (find (Step.text step)) cucc.stepdefs) with
   | [user_step] ->
-     actuate user_step (Step.text step) (Step.argument step) state
+     actuate user_step step state
   | [] ->
      print_endline ("Could not find step: " ^ (Step.text step));
      (None, Outcome.Undefined)
