@@ -1,21 +1,18 @@
-let count_outcome outcome outcomeLst =
-  List.length (List.find_all (fun o -> o = outcome) outcomeLst)
-
 let rec print_list = function
   | [] -> ()
   | [x] -> print_string x;
   | x::xs -> print_string x; print_string ", "; print_list xs
-
+             
 let print_scenario_report outcomeLists =
   let scenarios = List.length outcomeLists in
 
-  let failed = List.length (List.find_all (fun os ->
-      (count_outcome Outcome.Fail os) > 0 || (count_outcome Outcome.Pending os) > 0
-    ) outcomeLists) in
+  let failed = List.length (Base.List.filter outcomeLists (fun os ->
+      (Outcome.count_outcome Outcome.Fail os) > 0 || (Outcome.count_outcome Outcome.Pending os) > 0))
+  in
 
-  let undefined = List.length (List.find_all (fun os ->
-      (count_outcome Outcome.Undefined os) > 0
-    ) outcomeLists) in
+  let undefined = List.length (Base.List.filter outcomeLists (fun os ->
+      (Outcome.count_outcome Outcome.Undefined os) > 0))
+  in
 
   let passed = scenarios - failed - undefined in
 
@@ -38,12 +35,12 @@ let print_scenario_report outcomeLists =
 
 let print_step_report outcomes =
   let steps = List.length outcomes in
-  let failed = count_outcome Outcome.Fail outcomes in
-  let undefined = count_outcome Outcome.Undefined outcomes in
-  let skipped = count_outcome Outcome.Skip outcomes in
-  let pending = count_outcome Outcome.Pending outcomes in
-  let passed = count_outcome Outcome.Pass outcomes in
-
+  let failed = Outcome.count_failed outcomes in
+  let undefined = Outcome.count_undefined outcomes in
+  let skipped = Outcome.count_skipped outcomes in
+  let pending = Outcome.count_pending outcomes in
+  let passed = Outcome.count_passed outcomes in
+  
   let stats = [] in
     let stats =
       if passed > 0

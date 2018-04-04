@@ -11,4 +11,18 @@ let string_of_pickle pickle =
   let str_2 = List.fold_left (fun accum loc -> accum ^ (Location.string_of_location loc)) str pickle.locations in
   let str_3 = List.fold_left (fun accum tag -> accum ^ (Tag.string_of_tag tag)) str_2 pickle.tags in
   str_3 ^ List.fold_left (fun accum step -> accum ^ (Step.string_of_step step)) str_3 pickle.steps
+
+let execute_hooks hooks p =
+    Base.List.iter (Base.List.rev hooks) (fun f -> f p.name)
+
+let steps p =
+  p.steps
+
+let name p =
+  p.name
+
+external _load_feature_file : string -> t list = "load_feature_file"
   
+let load_feature_file fname =
+  let pickleLst = _load_feature_file fname in
+  List.rev_map (fun p -> {p with steps = (List.rev p.steps)}) pickleLst
