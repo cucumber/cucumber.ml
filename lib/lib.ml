@@ -66,21 +66,20 @@ let execute_step_with_skip cucc (skipping, error, lastState, results) step =
        (true, None, s, o :: results)
     | Error e ->
        (true, Some e, None, Outcome.Fail::results)
-          
+
+let print_error error pickle =
+  match error with
+  | Some e ->
+     print_endline ("Error in scenario " ^ Pickle.name pickle);
+     print_endline e;
+     print_newline ()
+  | _ -> ()
+  
 let execute_pickle cucc pickle =
   let steps = Pickle.steps pickle in
-
   Pickle.execute_hooks cucc.before_hooks pickle;
-
-  let (_, error, _, outcomeLst) = Base.List.fold steps ~init:(false, None, None, [])  ~f:(execute_step_with_skip cucc) in 
-
-  let _ = match error with
-    | Some e -> print_endline ("Error in scenario " ^ Pickle.name pickle);
-                print_endline e;
-                print_newline ()
-    | _ -> ()
-  in
-
+  let (_, error, _, outcomeLst) = Base.List.fold steps ~init:(false, None, None, [])  ~f:(execute_step_with_skip cucc) in
+  print_error error pickle;
   Pickle.execute_hooks cucc.after_hooks pickle;
   List.rev outcomeLst
 
