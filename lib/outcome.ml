@@ -25,3 +25,7 @@ let count_pending outcomeLst =
 
 let count_passed outcomeLst =
   count_outcome Pass outcomeLst
+
+let print_outcomes outcomes =
+  Base.List.iter outcomes (fun o -> o |> string_of_outcome |> print_string);
+

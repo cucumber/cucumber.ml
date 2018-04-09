@@ -42,10 +42,10 @@ let print_step_report outcomes =
   let formattedStats = format_stats stats in 
   print_string (string_of_int steps ^ " steps ");
   print_string "("; print_list formattedStats; print_endline ")"
-
+  
 let print outcomeLists =
   let outcomes = List.flatten outcomeLists in
   print_scenario_report outcomeLists;
   print_step_report outcomes;
-  Base.List.iter  outcomes (fun o -> (print_string (Outcome.string_of_outcome o)));
-  print_newline ()
+  Outcome.print_outcomes outcomes;
+  print_newline () 
