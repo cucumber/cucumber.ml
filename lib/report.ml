@@ -2,6 +2,13 @@ let rec print_list = function
   | [] -> ()
   | [x] -> print_string x;
   | x::xs -> print_string x; print_string ", "; print_list xs
+
+let format_stats stats =
+  Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
+      if count > 0
+      then (string_of_int count ^ " " ^ text) :: acc
+      else acc
+    )  
              
 let print_scenario_report outcomeLists =
   let scenarios = List.length outcomeLists in
@@ -18,12 +25,7 @@ let print_scenario_report outcomeLists =
       ("failed", failed)
     ]
   in
-  let formattedStats = Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
-                           if count > 0
-                           then (string_of_int count ^ " " ^ text) :: acc
-                           else acc
-                         )
-  in 
+  let formattedStats = format_stats stats in 
   print_string (string_of_int scenarios ^ " scenarios ");
   print_string "("; print_list formattedStats; print_endline ")"
 
@@ -37,12 +39,7 @@ let print_step_report outcomes =
           ("failed",    Outcome.count_failed outcomes);
         ]
   in
-  let formattedStats = Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
-                  if count > 0
-                  then (string_of_int count ^ " " ^ text) :: acc
-                  else acc
-                )
-  in 
+  let formattedStats = format_stats stats in 
   print_string (string_of_int steps ^ " steps ");
   print_string "("; print_list formattedStats; print_endline ")"
 
