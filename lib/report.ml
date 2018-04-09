@@ -5,33 +5,27 @@ let rec print_list = function
              
 let print_scenario_report outcomeLists =
   let scenarios = List.length outcomeLists in
-
   let failed = List.length (Base.List.filter outcomeLists (fun os ->
       (Outcome.count_outcome Outcome.Fail os) > 0 || (Outcome.count_outcome Outcome.Pending os) > 0))
   in
-
   let undefined = List.length (Base.List.filter outcomeLists (fun os ->
       (Outcome.count_outcome Outcome.Undefined os) > 0))
   in
-
   let passed = scenarios - failed - undefined in
-  
-  let stats = [] in
-    let stats =
-      if passed > 0
-      then (string_of_int passed ^ " passed") :: stats
-      else stats in
-    let stats =
-      if undefined > 0
-      then (string_of_int undefined ^ " undefined") :: stats
-      else stats in
-    let stats =
-      if failed > 0
-      then (string_of_int failed ^ " failed") :: stats
-      else stats in
-
+  let stats = [
+      ("passed", passed);
+      ("undefined", undefined);
+      ("failed", failed)
+    ]
+  in
+  let formattedStats = Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
+                           if count > 0
+                           then (string_of_int count ^ " " ^ text) :: acc
+                           else acc
+                         )
+  in 
   print_string (string_of_int scenarios ^ " scenarios ");
-  print_string "("; print_list stats; print_endline ")"
+  print_string "("; print_list formattedStats; print_endline ")"
 
 let print_step_report outcomes =
   let steps = List.length outcomes in
