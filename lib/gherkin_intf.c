@@ -107,6 +107,7 @@ CAMLprim value load_feature_file(value fileName) {
   Compiler_delete(compiler);
   Parser_delete(parser);
   AstBuilder_delete(builder);
+  TokenScanner_delete(token_scanner);
   TokenMatcher_delete(token_matcher);
   
   CAMLreturn(oPickleList);
