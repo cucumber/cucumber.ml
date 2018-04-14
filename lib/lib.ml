@@ -1,18 +1,18 @@
 type 'a step = {
     regex : Re.re;
-    step : ('a option -> Re.groups option -> Step.arg -> ('a option * Outcome.t))
+    stepdef : ('a option -> Re.groups option -> Step.arg -> ('a option * Outcome.t))
   }
 
 type 'a t = {
     before_hooks : (string -> unit) list;
     after_hooks : (string -> unit) list;
-    steps : 'a step list
+    stepdefs : 'a step list
   }
 
 let empty = {
     after_hooks = [];
     before_hooks = [];
-    steps = [];
+    stepdefs = [];
   }
 
 let _Before f cucc =
@@ -24,35 +24,29 @@ let _After f cucc =
   { cucc with after_hooks = f :: reg_after_hooks }
 
 let _Given re f cucc =
-  let reg_steps = cucc.steps in
-  { cucc with steps = { regex = re; step = f }::reg_steps }
+  let reg_steps = cucc.stepdefs in
+  { cucc with stepdefs = { regex = re; stepdef = f }::reg_steps }
 
 let _When = _Given
 let _Then = _Given
 
-let find str {regex; step} =
+let find str {regex; stepdef} =
   Re.execp regex str
 
-let actuate user_step str arg state =
-  let groups = (Re.exec_opt user_step.regex str) in
-  user_step.step state groups arg
+let actuate user_step step state =
+  let groups = Step.find_groups step user_step.regex in
+  user_step.stepdef state groups (Step.argument step) 
 
 let run cucc state step =
-  match (List.filter (find step.Step.text) cucc.steps) with
+  match (List.filter (find (Step.text step)) cucc.stepdefs) with
   | [user_step] ->
-     actuate user_step step.Step.text step.Step.argument state
+     actuate user_step step state
   | [] ->
-     print_endline ("Could not find step: " ^ step.Step.text);
+     print_endline ("Could not find step: " ^ (Step.text step));
      (None, Outcome.Undefined)
   | _ ->
-     print_endline ("Ambigious match: " ^ step.Step.text);
+     print_endline ("Ambigious match: " ^ (Step.text step));
      (None, Outcome.Undefined)
-
-let execute_before_hooks before_hooks pickel_name =
-  Base.List.iter (Base.List.rev before_hooks) (fun f -> f pickel_name)
-
-let execute_after_hooks after_hooks pickel_name =
-  Base.List.iter (Base.List.rev after_hooks) (fun f -> f pickel_name)
 
 let execute_step cucc state step =
   try
@@ -61,37 +55,36 @@ let execute_step cucc state step =
   with
   | ex -> Error (Printexc.to_string ex)
 
+let execute_step_with_skip cucc (skipping, error, lastState, results) step =
+  if skipping then
+    (true, error, None, Outcome.Skip::results)
+  else
+    match execute_step cucc lastState step with
+    | Ok (s, Outcome.Pass) ->
+       (false, None, s, Outcome.Pass::results)
+    | Ok (s, o) ->
+       (true, None, s, o :: results)
+    | Error e ->
+       (true, Some e, None, Outcome.Fail::results)
+
+let print_error error pickle =
+  match error with
+  | Some e ->
+     print_endline ("Error in scenario " ^ Pickle.name pickle);
+     print_endline e;
+     print_newline ()
+  | _ -> ()
+  
 let execute_pickle cucc pickle =
-  let name = pickle.Pickle.name in
-  let steps = pickle.Pickle.steps in
-
-  execute_before_hooks cucc.before_hooks pickle.Pickle.name;
-
-  let (_, error, _, outcomeLst) = List.fold_left (fun (skipping, error, lastState, results) step ->
-      if skipping then (true, error, None, Outcome.Skip :: results)
-      else
-        match execute_step cucc lastState step with
-        | Ok (s, Outcome.Pass) -> (false, None, s, Outcome.Pass :: results)
-        | Ok (s, o) -> (true, None, s, o :: results)
-        | Error e -> (true, Some e, None, Outcome.Fail :: results)
-    ) (false, None, None, []) steps in
-
-  let _ = match error with
-    | Some e -> print_endline ("Error in scenario " ^ name);
-                print_endline e;
-                print_newline ()
-    | _ -> ()
-  in
-
-  execute_after_hooks cucc.after_hooks pickle.Pickle.name;
+  let steps = Pickle.steps pickle in
+  Pickle.execute_hooks cucc.before_hooks pickle;
+  let (_, error, _, outcomeLst) = Base.List.fold steps ~init:(false, None, None, [])  ~f:(execute_step_with_skip cucc) in
+  print_error error pickle;
+  Pickle.execute_hooks cucc.after_hooks pickle;
   List.rev outcomeLst
 
-let load_feature_file fname =
-  let pickleLst = Gherkin.load_feature_file fname in
-  List.rev_map (fun p -> {p with Pickle.steps = (List.rev p.Pickle.steps)}) pickleLst
-
-let execute cucc =
-  let pickleLst = load_feature_file Sys.argv.(1) in
+let execute cucc = 
+  let pickleLst = Pickle.load_feature_file Sys.argv.(1) in
   match pickleLst with
   | [] -> print_endline "Empty Pickle list"
   | _ ->
