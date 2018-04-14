@@ -27,5 +27,12 @@ let count_passed outcomeLst =
   count_outcome Pass outcomeLst
 
 let print_outcomes outcomes =
-  Base.List.iter outcomes (fun o -> o |> string_of_outcome |> print_string);
-
+  Base.List.iter outcomes (fun o -> o |> string_of_outcome |> print_string)
+  
+(** returns exit status  suitable for use with the exit function. *)
+let exit_status outcome_list =
+  if (count_failed outcome_list > 0)
+     || (count_undefined outcome_list > 0) then
+    3
+  else
+    0  

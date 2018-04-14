@@ -8,3 +8,4 @@ val count_skipped : t list -> int
 val count_pending : t list -> int
 val count_passed : t list -> int
 val print_outcomes : t list -> unit
+val exit_status : t list -> int

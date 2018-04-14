@@ -83,13 +83,19 @@ let execute_pickle cucc pickle =
   Pickle.execute_hooks cucc.after_hooks pickle;
   List.rev outcomeLst
 
+(** Executes current Cucumber context and returns exit status 
+    suitable for use with the exit function.
+ *)
 let execute cucc = 
   let pickleLst = Pickle.load_feature_file Sys.argv.(1) in
   match pickleLst with
-  | [] -> print_endline "Empty Pickle list"
+  | [] ->
+     print_endline "Empty Pickle list";
+     Outcome.exit_status []
   | _ ->
      let outcomeLst = Base.List.map pickleLst (execute_pickle cucc) in
-     Report.print outcomeLst
+     Report.print outcomeLst;
+     Outcome.exit_status (List.flatten outcomeLst)
 
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)

@@ -8,7 +8,7 @@ val _Then : Re.re -> ('a option -> Re.groups option -> Step.arg -> ('a option * 
 val _Before : (string -> unit) -> 'a t -> 'a t
 val _After : (string -> unit) -> 'a t -> 'a t
 
-val execute: 'a t -> unit      
+val execute: 'a t -> int
 val fail : ('a option * Outcome.t)
 val pass : ('a option * Outcome.t)
 val pass_with_state : 'a -> ('a option * Outcome.t)
