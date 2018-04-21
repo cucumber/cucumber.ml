@@ -83,11 +83,8 @@ let execute_pickle cucc pickle =
   Pickle.execute_hooks cucc.after_hooks pickle;
   List.rev outcomeLst
 
-(** Executes current Cucumber context and returns exit status 
-    suitable for use with the exit function.
- *)
-let execute cucc = 
-  let pickleLst = Pickle.load_feature_file Sys.argv.(1) in
+let execute_pickle_lst cucc exit_status feature_file =
+  let pickleLst = Pickle.load_feature_file feature_file in
   match pickleLst with
   | [] ->
      print_endline "Empty Pickle list";
@@ -96,7 +93,24 @@ let execute cucc =
      let outcomeLst = Base.List.map pickleLst (execute_pickle cucc) in
      Report.print outcomeLst;
      Outcome.exit_status (List.flatten outcomeLst)
+  
+  
+let tags = ref ""
+and feature_files = ref []
+                  
+let specs =
+  [
+    ("--tags", Arg.Set_string tags, "set tags that will be run");
+  ]
 
+  
+(** Executes current Cucumber context and returns exit status 
+    suitable for use with the exit function.
+ *)
+let execute cucc =
+  Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Something";
+  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc)
+  
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)
 let pass_with_state state = (Some state, Outcome.Pass)
