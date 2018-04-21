@@ -101,7 +101,8 @@ let execute_pickle_lst cucc tags exit_status feature_file =
   
 let tags = ref ""
 and feature_files = ref []
-                  
+
+let re = (Re.Perl.compile_pat "[\t ]+")
 let specs =
   [
     ("--tags", Arg.Set_string tags, "set tags that will be run");
@@ -112,12 +113,9 @@ let specs =
 (** Executes current Cucumber context and returns exit status 
     suitable for use with the exit function.
  *)
-let re = (Re.Perl.compile_pat "[\t ]+")
-  
 let execute cucc =
   Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Feature Files";
-  let tags = Re.split re !tags in
-  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc tags)
+  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc (Re.split re !tags))
   
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)
