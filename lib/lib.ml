@@ -82,17 +82,21 @@ let execute_pickle cucc pickle =
   print_error error pickle;
   Pickle.execute_hooks cucc.after_hooks pickle;
   List.rev outcomeLst
-
-let execute_pickle_lst cucc exit_status feature_file =
+  
+let execute_pickle_lst cucc tags exit_status feature_file =
   let pickleLst = Pickle.load_feature_file feature_file in
   match pickleLst with
   | [] ->
      print_endline "Empty Pickle list";
      Outcome.exit_status []
   | _ ->
-     let outcomeLst = Base.List.map pickleLst (execute_pickle cucc) in
+     let runnablePickelLst = Pickle.filter_pickles tags pickleLst in
+     let outcomeLst = Base.List.map runnablePickelLst (execute_pickle cucc) in
      Report.print outcomeLst;
-     Outcome.exit_status (List.flatten outcomeLst)
+     if exit_status = 0 then
+       Outcome.exit_status (List.flatten outcomeLst)
+     else
+       exit_status
   
   
 let tags = ref ""
@@ -101,15 +105,19 @@ and feature_files = ref []
 let specs =
   [
     ("--tags", Arg.Set_string tags, "set tags that will be run");
+    ("-t", Arg.Set_string tags, "set tags that will be run");
   ]
 
   
 (** Executes current Cucumber context and returns exit status 
     suitable for use with the exit function.
  *)
+let re = (Re.Perl.compile_pat "[\t ]+")
+  
 let execute cucc =
-  Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Something";
-  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc)
+  Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Feature Files";
+  let tags = Re.split re !tags in
+  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc tags)
   
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)

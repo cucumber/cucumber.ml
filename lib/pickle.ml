@@ -25,4 +25,15 @@ external _load_feature_file : string -> t list = "load_feature_file"
   
 let load_feature_file fname =
   let pickleLst = _load_feature_file fname in
-  List.rev_map (fun p -> {p with steps = (List.rev p.steps)}) pickleLst
+  Base.List.rev_map pickleLst (fun p -> {p with steps = (List.rev p.steps)})
+
+let (>>=) = Base.List.(>>=)
+
+let tags_exists tags tag_str =
+  Base.List.exists tags (fun tag -> Tag.compare_str tag_str tag)
+
+let pickles_exists tags pickle =
+  Base.List.exists tags (tags_exists pickle.tags)    
+  
+let filter_pickles tags pickles =
+  Base.List.rev_filter pickles (pickles_exists tags)
