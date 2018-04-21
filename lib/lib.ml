@@ -38,7 +38,7 @@ let actuate user_step step state =
   user_step.stepdef state groups (Step.argument step) 
 
 let run cucc state step =
-  match (List.filter (find (Step.text step)) cucc.stepdefs) with
+  match (Base.List.filter cucc.stepdefs (find (Step.text step))) with
   | [user_step] ->
      actuate user_step step state
   | [] ->
@@ -81,7 +81,7 @@ let execute_pickle cucc pickle =
   let (_, error, _, outcomeLst) = Base.List.fold steps ~init:(false, None, None, [])  ~f:(execute_step_with_skip cucc) in
   print_error error pickle;
   Pickle.execute_hooks cucc.after_hooks pickle;
-  List.rev outcomeLst
+  Base.List.rev outcomeLst
   
 let execute_pickle_lst cucc tags exit_status feature_file =
   let pickleLst = Pickle.load_feature_file feature_file in
@@ -97,7 +97,6 @@ let execute_pickle_lst cucc tags exit_status feature_file =
        Outcome.exit_status (List.flatten outcomeLst)
      else
        exit_status
-  
   
 let tags = ref ""
 and feature_files = ref []
