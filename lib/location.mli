@@ -1,6 +1,4 @@
-type t = {
-    line : int32;
-    column : int32
-  }
+type t
 
 val string_of_location : t -> string
+val from_command_line : unit -> t

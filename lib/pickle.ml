@@ -27,8 +27,8 @@ let load_feature_file fname =
   let pickleLst = _load_feature_file fname in
   Base.List.rev_map pickleLst (fun p -> {p with steps = (List.rev p.steps)})
 
-let tags_exists tags tag_str =
-  Base.List.exists tags (Tag.compare_str tag_str)
+let tags_exists tags tag =
+  Base.List.exists tags (Tag.compare tag)
 
 let pickles_exists tags pickle =
   Base.List.exists tags (tags_exists pickle.tags)    

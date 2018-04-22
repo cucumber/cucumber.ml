@@ -114,7 +114,8 @@ let specs =
  *)
 let execute cucc =
   Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Feature Files";
-  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc (Re.split re !tags))
+  let tags = Base.List.map (Re.split re !tags) (Tag.create_from_command_line) in
+  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc tags)
   
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)
