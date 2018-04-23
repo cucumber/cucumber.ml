@@ -84,17 +84,17 @@ let execute_pickle cucc pickle =
   Base.List.rev outcomeLst
   
 let execute_pickle_lst cucc tags exit_status feature_file =
-  let pickleLst = Pickle.load_feature_file feature_file in
-  match pickleLst with
+  let pickle_lst = Pickle.load_feature_file feature_file in
+  match pickle_lst with
   | [] ->
      print_endline "Empty Pickle list";
      Outcome.exit_status []
   | _ ->
-     let runnable_pickle_lst = Pickle.filter_pickles tags pickleLst in
-     let outcomeLst = Base.List.map runnable_pickle_lst (execute_pickle cucc) in
-     Report.print outcomeLst;
+     let runnable_pickle_lst = Pickle.filter_pickles tags pickle_lst in
+     let outcome_lst = Base.List.map runnable_pickle_lst (execute_pickle cucc) in
+     Report.print feature_file outcome_lst;
      if exit_status = 0 then
-       Outcome.exit_status (List.flatten outcomeLst)
+       Outcome.exit_status (List.flatten outcome_lst)
      else
        exit_status
   
@@ -113,7 +113,7 @@ let specs =
 let execute cucc =
   Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Feature Files";
   let tags = Tag.list_of_string !tags in
-  Base.List.fold !feature_files ~init:0 ~f:(execute_pickle_lst cucc tags)
+  Base.List.fold (Base.List.rev !feature_files) ~init:0 ~f:(execute_pickle_lst cucc tags)
   
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)

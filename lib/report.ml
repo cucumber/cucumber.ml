@@ -26,9 +26,14 @@ let print_scenario_report outcomeLists =
     ]
   in
   let formattedStats = format_stats stats in 
-  print_string (string_of_int scenarios ^ " scenarios ");
-  print_string "("; print_list formattedStats; print_endline ")"
-
+  if scenarios > 0 then
+    begin
+      print_string (string_of_int scenarios ^ " scenarios ");
+      print_string "("; print_list formattedStats; print_endline ")"
+    end
+  else
+    print_endline (string_of_int scenarios ^ " scenarios ")
+    
 let print_step_report outcomes =
   let steps = List.length outcomes in
   let stats = [
@@ -39,13 +44,19 @@ let print_step_report outcomes =
           ("failed",    Outcome.count_failed outcomes);
         ]
   in
-  let formattedStats = format_stats stats in 
-  print_string (string_of_int steps ^ " steps ");
-  print_string "("; print_list formattedStats; print_endline ")"
+  let formattedStats = format_stats stats in
+  if steps > 0 then
+    begin
+      print_string (string_of_int steps ^ " steps ");
+      print_string "("; print_list formattedStats; print_endline ")"
+    end
+  else
+    print_string (string_of_int steps ^ " steps ")
   
-let print outcomeLists =
-  let outcomes = List.flatten outcomeLists in
-  print_scenario_report outcomeLists;
+let print feature_file outcome_lists =
+  let outcomes = List.flatten outcome_lists in
+  print_endline ("Feature File: " ^ feature_file);
+  print_scenario_report outcome_lists;
   print_step_report outcomes;
   Outcome.print_outcomes outcomes;
   print_newline () 

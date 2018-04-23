@@ -1,1 +1,1 @@
-val print : Outcome.t list list -> unit
+val print : string -> Outcome.t list list -> unit
