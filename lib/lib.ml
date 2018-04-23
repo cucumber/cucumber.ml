@@ -90,8 +90,8 @@ let execute_pickle_lst cucc tags exit_status feature_file =
      print_endline "Empty Pickle list";
      Outcome.exit_status []
   | _ ->
-     let runnable_pickel_lst = Pickle.filter_pickles tags pickleLst in
-     let outcomeLst = Base.List.map runnable_pickel_lst (execute_pickle cucc) in
+     let runnable_pickle_lst = Pickle.filter_pickles tags pickleLst in
+     let outcomeLst = Base.List.map runnable_pickle_lst (execute_pickle cucc) in
      Report.print outcomeLst;
      if exit_status = 0 then
        Outcome.exit_status (List.flatten outcomeLst)
