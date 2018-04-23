@@ -83,11 +83,10 @@ let execute_pickle cucc pickle =
   Pickle.execute_hooks cucc.after_hooks pickle;
   Base.List.rev outcomeLst
   
-let execute_pickle_lst cucc tags exit_status feature_file =
+let execute_pickle_lst cucc tags exit_status feature_file =  
   let pickle_lst = Pickle.load_feature_file feature_file in
   match pickle_lst with
   | [] ->
-     print_endline "Empty Pickle list";
      Outcome.exit_status []
   | _ ->
      let runnable_pickle_lst = Pickle.filter_pickles tags pickle_lst in
