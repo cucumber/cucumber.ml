@@ -110,12 +110,12 @@ let foo cucc tags_str files =
   in
   let exit_status = Base.List.fold (Base.List.rev files) ~init:0 ~f:(execute_pickle_lst cucc tags) in
   if exit_status = 0 then
-    `Ok
+    `Ok 0
   else
-    `Error
+    `Error (false, "")
   
 let cmd cucc =
-  Cmdliner.Term.(const (foo cucc) $ tags_arg $ files_arg),
+  Cmdliner.Term.(ret (const (foo cucc) $ tags_arg $ files_arg)),
   Cmdliner.Term.info "Cucumber" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
   
 (** Executes current Cucumber context and returns exit status 
