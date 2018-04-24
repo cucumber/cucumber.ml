@@ -38,7 +38,7 @@ let actuate user_step step state =
   user_step.stepdef state groups (Step.argument step) 
 
 let run cucc state step =
-  match (List.filter (find (Step.text step)) cucc.stepdefs) with
+  match (Base.List.filter cucc.stepdefs (find (Step.text step))) with
   | [user_step] ->
      actuate user_step step state
   | [] ->
@@ -81,22 +81,39 @@ let execute_pickle cucc pickle =
   let (_, error, _, outcomeLst) = Base.List.fold steps ~init:(false, None, None, [])  ~f:(execute_step_with_skip cucc) in
   print_error error pickle;
   Pickle.execute_hooks cucc.after_hooks pickle;
-  List.rev outcomeLst
+  Base.List.rev outcomeLst
+  
+let execute_pickle_lst cucc tags exit_status feature_file =  
+  let pickle_lst = Pickle.load_feature_file feature_file in
+  match pickle_lst with
+  | [] ->
+     Outcome.exit_status []
+  | _ ->
+     let runnable_pickle_lst = Pickle.filter_pickles tags pickle_lst in
+     let outcome_lst = Base.List.map runnable_pickle_lst (execute_pickle cucc) in
+     Report.print feature_file outcome_lst;
+     if exit_status = 0 then
+       Outcome.exit_status (List.flatten outcome_lst)
+     else
+       exit_status
+  
+let tags = ref ""
+and feature_files = ref []
+
+let specs =
+  [
+    ("--tags", Arg.Set_string tags, "set tags that will be run");
+    ("-t", Arg.Set_string tags, "set tags that will be run");
+  ]
 
 (** Executes current Cucumber context and returns exit status 
     suitable for use with the exit function.
  *)
-let execute cucc = 
-  let pickleLst = Pickle.load_feature_file Sys.argv.(1) in
-  match pickleLst with
-  | [] ->
-     print_endline "Empty Pickle list";
-     Outcome.exit_status []
-  | _ ->
-     let outcomeLst = Base.List.map pickleLst (execute_pickle cucc) in
-     Report.print outcomeLst;
-     Outcome.exit_status (List.flatten outcomeLst)
-
+let execute cucc =
+  Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Feature Files";
+  let tags = Tag.list_of_string !tags in
+  Base.List.fold (Base.List.rev !feature_files) ~init:0 ~f:(execute_pickle_lst cucc tags)
+  
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)
 let pass_with_state state = (Some state, Outcome.Pass)

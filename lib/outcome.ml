@@ -8,8 +8,8 @@ let string_of_outcome = function
   | Skip -> "-"
 
 
-let count_outcome outcome outcomeLst = 
-  Base.List.length (Base.List.filter outcomeLst (fun o -> o = outcome))
+let count_outcome outcome outcome_lst = 
+  Base.List.length (Base.List.filter outcome_lst (fun o -> o = outcome))
 
 let count_failed outcomeLst =
   count_outcome Fail outcomeLst
