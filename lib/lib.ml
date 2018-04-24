@@ -112,11 +112,11 @@ let manage_command_line cucc tags_str files =
   if exit_status = 0 then
     `Ok 0
   else
-    `Error (false, "")
+    `Error (false, "Some scenarios failed. Please see output for more details")
   
 let cmd cucc =
   Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
-  Cmdliner.Term.info "Cucumber" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
+  Cmdliner.Term.info "Cucumber.ml" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
   
 (** Executes current Cucumber context and returns exit status 
     suitable for use with the exit function.
