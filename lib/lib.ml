@@ -100,7 +100,7 @@ let execute_pickle_lst cucc tags exit_status feature_file =
 let files_arg = Cmdliner.Arg.(non_empty & pos_all file [] & info [] ~docv:"FILE")
 let tags_arg = Cmdliner.Arg.(value & opt (some string) None & info ["tags"] ~docv:"TAGS" ~doc:"Tags")
      
-let foo cucc tags_str files =
+let manage_command_line cucc tags_str files =
   let tags =
     match tags_str with
     | Some str ->
@@ -115,7 +115,7 @@ let foo cucc tags_str files =
     `Error (false, "")
   
 let cmd cucc =
-  Cmdliner.Term.(ret (const (foo cucc) $ tags_arg $ files_arg)),
+  Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
   Cmdliner.Term.info "Cucumber" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
   
 (** Executes current Cucumber context and returns exit status 
