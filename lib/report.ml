@@ -55,6 +55,7 @@ let print_step_report outcomes =
   
 let print feature_file outcome_lists =
   let outcomes = List.flatten outcome_lists in
+  print_newline ();
   print_endline ("Feature File: " ^ feature_file);
   print_scenario_report outcome_lists;
   print_step_report outcomes;
