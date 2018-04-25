@@ -36,3 +36,6 @@ let exit_status outcome_list =
     3
   else
     0  
+
+let string_of_outcomes outcomes =
+  Base.String.concat ~sep:"" (Base.List.map outcomes (string_of_outcome))

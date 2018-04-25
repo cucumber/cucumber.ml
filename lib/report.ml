@@ -1,16 +1,16 @@
 let format_stats stats =
   Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
       if count > 0
-      then (string_of_int count ^ " " ^ text) :: acc
+      then (string_of_int count ^ " " ^ text)::acc
       else acc
     )
   
-let print_scenario_report outcomeLists =
-  let scenarios = List.length outcomeLists in
-  let failed = List.length (Base.List.filter outcomeLists (fun os ->
+let scenario_report outcome_lists =
+  let scenarios = List.length outcome_lists in
+  let failed = List.length (Base.List.filter outcome_lists (fun os ->
       (Outcome.count_outcome Outcome.Fail os) > 0 || (Outcome.count_outcome Outcome.Pending os) > 0))
   in
-  let undefined = List.length (Base.List.filter outcomeLists (fun os ->
+  let undefined = List.length (Base.List.filter outcome_lists (fun os ->
       (Outcome.count_outcome Outcome.Undefined os) > 0))
   in
   let passed = scenarios - failed - undefined in
@@ -21,9 +21,9 @@ let print_scenario_report outcomeLists =
     ]
   in
   let stats_str = Base.String.concat ~sep:", " (format_stats stats) in
-  Format.printf "@[%d@ scenarios@ @[(%s)@]@]@." scenarios stats_str
+  Format.sprintf "@[%d@ scenarios@ @[(%s)@]@]@." scenarios stats_str
     
-let print_step_report outcomes =
+let step_report outcomes =
   let steps = List.length outcomes in
   let stats = [
           ("passed",    Outcome.count_passed outcomes);
@@ -35,14 +35,10 @@ let print_step_report outcomes =
   in
   let stats_str = Base.String.concat ~sep:", " (format_stats stats) in
   if steps > 0 then
-    Format.printf "@[%d steps@ @[(%s)@]@]@." steps stats_str
+    Format.sprintf "@[%d steps@ @[(%s)@]@]" steps stats_str
   else
-    Format.printf "@[%d steps@]@." steps
+    Format.sprintf "@[%d steps@]" steps
   
 let print feature_file outcome_lists =
-  let outcomes = List.flatten outcome_lists in
-  print_endline ("Feature File: " ^ feature_file);
-  print_scenario_report outcome_lists;
-  print_step_report outcomes;
-  Outcome.print_outcomes outcomes;
-  print_newline (); print_newline ();
+  let outcomes = List.flatten outcome_lists in  
+  Format.printf "@[Feature File: %s@]@.@[%s@]@[%s@]@[%s@]@.@." feature_file (scenario_report outcome_lists) (step_report outcomes) (Outcome.string_of_outcomes outcomes)
