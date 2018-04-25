@@ -8,9 +8,7 @@ let format_stats stats =
       if count > 0
       then (string_of_int count ^ " " ^ text) :: acc
       else acc
-    )  
-
-let step_outcome_format = "@[%d@ undefined,@ %d@ skipped,@ %d@ passed@]"
+    )
   
 let print_scenario_report outcomeLists =
   let scenarios = List.length outcomeLists in
@@ -21,7 +19,14 @@ let print_scenario_report outcomeLists =
       (Outcome.count_outcome Outcome.Undefined os) > 0))
   in
   let passed = scenarios - failed - undefined in
-  Format.printf "@[%d@ %s@ @[(%d@ undefined,@ %d@ failed,@ %d@ passed)@]@]@." scenarios "scenarios" undefined failed passed
+  let stats = [
+      ("passed", passed);
+      ("undefined", undefined);
+      ("failed", failed)
+    ]
+  in
+  let stats_str = Base.String.concat ~sep:", " (format_stats stats) in
+  Format.printf "@[%d@ scenarios@ @[(%s)@]@]@." scenarios stats_str
     
 let print_step_report outcomes =
   let steps = List.length outcomes in
