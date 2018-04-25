@@ -106,7 +106,7 @@ let manage_command_line cucc tags_str files =
     | Some str ->
        Tag.list_of_string str
     | None ->
-       ([], [])
+       Tag.list_of_string ""
   in
   let exit_status = Base.List.fold (Base.List.rev files) ~init:0 ~f:(execute_pickle_lst cucc tags) in
   if exit_status = 0 then
@@ -118,8 +118,7 @@ let cmd cucc =
   Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
   Cmdliner.Term.info "Cucumber.ml" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
   
-(** Executes current Cucumber context and returns exit status 
-    suitable for use with the exit function.
+(** Executes current Cucumber context and exits the process.
  *)
 let execute cucc =
   Cmdliner.Term.(exit @@ eval (cmd cucc))
