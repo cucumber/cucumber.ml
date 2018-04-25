@@ -1,8 +1,3 @@
-let rec print_list = function
-  | [] -> ()
-  | [x] -> print_string x;
-  | x::xs -> print_string x; print_string ", "; print_list xs
-
 let format_stats stats =
   Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
       if count > 0
@@ -38,14 +33,11 @@ let print_step_report outcomes =
           ("failed",    Outcome.count_failed outcomes);
         ]
   in
-  let formattedStats = format_stats stats in
+  let stats_str = Base.String.concat ~sep:", " (format_stats stats) in
   if steps > 0 then
-    begin
-      print_string (string_of_int steps ^ " steps ");
-      print_string "("; print_list formattedStats; print_endline ")"
-    end
+    Format.printf "@[%d steps@ @[(%s)@]@]@." steps stats_str
   else
-    print_string (string_of_int steps ^ " steps ")
+    Format.printf "@[%d steps@]@." steps
   
 let print feature_file outcome_lists =
   let outcomes = List.flatten outcome_lists in
