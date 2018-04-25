@@ -9,7 +9,9 @@ let format_stats stats =
       then (string_of_int count ^ " " ^ text) :: acc
       else acc
     )  
-             
+
+let step_outcome_format = "@[%d@ undefined,@ %d@ skipped,@ %d@ passed@]"
+  
 let print_scenario_report outcomeLists =
   let scenarios = List.length outcomeLists in
   let failed = List.length (Base.List.filter outcomeLists (fun os ->
@@ -19,20 +21,7 @@ let print_scenario_report outcomeLists =
       (Outcome.count_outcome Outcome.Undefined os) > 0))
   in
   let passed = scenarios - failed - undefined in
-  let stats = [
-      ("passed", passed);
-      ("undefined", undefined);
-      ("failed", failed)
-    ]
-  in
-  let formattedStats = format_stats stats in 
-  if scenarios > 0 then
-    begin
-      print_string (string_of_int scenarios ^ " scenarios ");
-      print_string "("; print_list formattedStats; print_endline ")"
-    end
-  else
-    print_endline (string_of_int scenarios ^ " scenarios ")
+  Format.printf "@[%d@ %s@ @[(%d@ undefined,@ %d@ failed,@ %d@ passed)@]@]@." scenarios "scenarios" undefined failed passed
     
 let print_step_report outcomes =
   let steps = List.length outcomes in
