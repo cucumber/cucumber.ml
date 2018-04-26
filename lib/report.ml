@@ -6,7 +6,7 @@ let format_stats stats =
     )
   
 let scenario_report outcome_lists =
-  let scenarios = List.length outcome_lists in
+  let scenarios = Base.List.length outcome_lists in
   let failed = List.length (Base.List.filter outcome_lists (fun os ->
       (Outcome.count_outcome Outcome.Fail os) > 0 || (Outcome.count_outcome Outcome.Pending os) > 0))
   in
@@ -24,7 +24,7 @@ let scenario_report outcome_lists =
   Format.sprintf "@[%d@ scenarios@ @[(%s)@]@]@." scenarios stats_str
     
 let step_report outcomes =
-  let steps = List.length outcomes in
+  let steps = Base.List.length outcomes in
   let stats = [
           ("passed",    Outcome.count_passed outcomes);
           ("pending",   Outcome.count_pending outcomes);
