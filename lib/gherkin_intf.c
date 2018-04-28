@@ -235,7 +235,7 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
       Store_field(oStep, 2, arg);
       break;
     case Argument_Table:
-      arg = caml_alloc(1, 1);
+      arg = caml_alloc(1, 0);
       Store_field(arg, 0, create_ocaml_table(step->argument));
       Store_field(oStep, 2, arg);
       break;

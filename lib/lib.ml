@@ -1,6 +1,6 @@
 type 'a step = {
     regex : Re.re;
-    stepdef : ('a option -> Re.groups option -> Step.arg -> ('a option * Outcome.t))
+    stepdef : ('a option -> Re.groups option -> Step.arg option -> ('a option * Outcome.t))
   }
 
 type 'a t = {
