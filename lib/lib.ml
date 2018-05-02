@@ -108,7 +108,7 @@ let manage_command_line cucc tags_str files =
     | None ->
        Tag.list_of_string ""
   in
-  let exit_status = Base.List.fold (Base.List.rev files) ~init:0 ~f:(execute_pickle_lst cucc tags) in
+  let exit_status = Base.List.fold files ~init:0 ~f:(execute_pickle_lst cucc tags) in
   if exit_status = 0 then
     `Ok 0
   else
