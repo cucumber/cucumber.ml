@@ -53,3 +53,8 @@ let to_map_with_header dt =
      Base.List.fold key_value_zip ~init:(Base.Map.empty (module Base.String)) ~f:update_col_map
   | [] ->
      Base.Map.empty (module Base.String)
+
+let transform dt f =
+  let cells = Base.List.map dt.rows (fun row ->
+                              Base.List.map row.cells (fun cell -> cell.value)) in
+  Base.List.map cells f
