@@ -24,3 +24,32 @@ let string_of_row row =
 let string_of_table table =
   let str = List.fold_left (fun accum row -> accum ^ (string_of_row row)) "" table.rows in
   "\nTable\n" ^ str
+
+let zip header_row row =
+  let header = Base.List.map header_row.cells ~f:(fun head -> head.value) in
+  let row = Base.List.map row.cells (fun cell -> cell.value) in
+  let zipped_row = Base.List.zip header row in
+  match zipped_row with
+  | Some x ->
+     x
+  | None ->
+     []
+
+let update_col_map map row =
+  match row with
+  | (k, v) ->
+     Base.Map.update map k (fun vl ->
+         match vl with
+         | Some x ->
+            (v::x)
+         | _ ->
+            [v]
+       )
+    
+let to_map_with_header dt =
+  match dt.rows with
+  | header::rest ->
+     let key_value_zip = List.flatten (Base.List.map rest (zip header)) in
+     Base.List.fold key_value_zip ~init:(Base.Map.empty (module Base.String)) ~f:update_col_map
+  | [] ->
+     Base.Map.empty (module Base.String)
