@@ -76,7 +76,6 @@ CAMLprim value load_feature_file(value fileName) {
 	const Pickle *pickle = pickle_event->pickle;
 
 	oPickle = create_ocaml_pickle(pickle);
-
 	
 	cons = caml_alloc(2, 0);
 
@@ -260,7 +259,7 @@ CAMLprim value create_ocaml_step_list(const PickleSteps *steps) {
     CAMLreturn(oStepList);
   }
   
-  for(int i = 0; i < steps->step_count; ++i) {
+  for(int i = (steps->step_count - 1); i >= 0 ; i--) {
     cons = caml_alloc(2, 0);
     oStep = create_ocaml_step(&steps->steps[i]);
     Store_field(cons, 0, oStep);
@@ -308,7 +307,7 @@ CAMLprim value create_ocaml_table_row_list(const PickleRows *rows) {
 
   oRowList = Val_emptylist;
 
-  for(int i = 0; i < rows->row_count; ++i) {
+  for(int i = (rows->row_count - 1); i >= 0; i--) {
     cons = caml_alloc(2, 0);
     oRow = create_ocaml_table_row(&rows->pickle_rows[i]);
 
@@ -326,8 +325,8 @@ CAMLprim value create_ocaml_table_row(const PickleRow *row) {
   CAMLlocal4(oCellList, oCell, oRow, cons);
 
   oCellList = Val_emptylist;
-  
-  for(int i = 0; i < row->pickle_cells->cell_count; ++i) {
+
+  for(int i = (row->pickle_cells->cell_count - 1); i >= 0; i--) {
     cons = caml_alloc(2, 0);
     oCell = create_ocaml_table_cell(&row->pickle_cells->pickle_cells[i]);
 

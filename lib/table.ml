@@ -49,7 +49,7 @@ let update_col_map map row =
 let to_map_with_header dt =
   match dt.rows with
   | header::rest ->
-     let key_value_zip = List.flatten (Base.List.map rest (zip header)) in
+     let key_value_zip = List.flatten (Base.List.map (Base.List.rev rest) (zip header)) in
      Base.List.fold key_value_zip ~init:(Base.Map.empty (module Base.String)) ~f:update_col_map
   | [] ->
      Base.Map.empty (module Base.String)
