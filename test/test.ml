@@ -65,4 +65,4 @@ let bar = [
           
 let _ =
   let _cucc = Base.List.fold bar ~init:Cucumber.Lib.empty ~f:(fun accum stepdef -> stepdef accum) in
-  exit (Cucumber.Lib.execute foo)
+ Cucumber.Lib.execute foo

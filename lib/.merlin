@@ -1,2 +1,2 @@
 S .
-PKG re re.perl base
+PKG re re.perl base cmdliner

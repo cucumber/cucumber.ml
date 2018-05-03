@@ -96,23 +96,32 @@ let execute_pickle_lst cucc tags exit_status feature_file =
        Outcome.exit_status (List.flatten outcome_lst)
      else
        exit_status
+
+let files_arg = Cmdliner.Arg.(non_empty & pos_all file [] & info [] ~docv:"FILE")
+let tags_arg = Cmdliner.Arg.(value & opt (some string) None & info ["tags"] ~docv:"TAGS" ~doc:"Tags")
+     
+let manage_command_line cucc tags_str files =
+  let tags =
+    match tags_str with
+    | Some str ->
+       Tag.list_of_string str
+    | None ->
+       Tag.list_of_string ""
+  in
+  let exit_status = Base.List.fold files ~init:0 ~f:(execute_pickle_lst cucc tags) in
+  if exit_status = 0 then
+    `Ok 0
+  else
+    `Error (false, "Some scenarios failed. Please see output for more details")
   
-let tags = ref ""
-and feature_files = ref []
-
-let specs =
-  [
-    ("--tags", Arg.Set_string tags, "set tags that will be run");
-    ("-t", Arg.Set_string tags, "set tags that will be run");
-  ]
-
-(** Executes current Cucumber context and returns exit status 
-    suitable for use with the exit function.
+let cmd cucc =
+  Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
+  Cmdliner.Term.info "Cucumber.ml" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
+  
+(** Executes current Cucumber context and exits the process.
  *)
 let execute cucc =
-  Arg.parse specs (fun anon -> feature_files := anon::!feature_files) "Feature Files";
-  let tags = Tag.list_of_string !tags in
-  Base.List.fold (Base.List.rev !feature_files) ~init:0 ~f:(execute_pickle_lst cucc tags)
+  Cmdliner.Term.(exit @@ eval (cmd cucc))
   
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)

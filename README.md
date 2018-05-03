@@ -66,7 +66,7 @@ let foo = Cucumber.Lib.empty
                 man_state state true)
 
 let _ =
-  exit Cucumber.Lib.execute foo
+  Cucumber.Lib.execute foo
 
 ```
 
