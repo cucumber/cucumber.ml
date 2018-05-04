@@ -25,7 +25,7 @@ external _load_feature_file : string -> t list = "load_feature_file"
   
 let load_feature_file fname =
   if Sys.file_exists fname then
-    _load_feature_file fname
+    Base.List.rev (_load_feature_file fname)
   else
     begin
       print_endline ("Feature File " ^ fname ^ " does not exist");

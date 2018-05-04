@@ -258,10 +258,12 @@ CAMLprim value create_ocaml_step_list(const PickleSteps *steps) {
   if(steps == NULL) {
     CAMLreturn(oStepList);
   }
-  
+
   for(int i = (steps->step_count - 1); i >= 0 ; i--) {
     cons = caml_alloc(2, 0);
+
     oStep = create_ocaml_step(&steps->steps[i]);
+
     Store_field(cons, 0, oStep);
     Store_field(cons, 1, oStepList);
 

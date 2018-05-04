@@ -19,10 +19,10 @@ let string_of_row row =
   let aux accum cell =
     accum ^ (string_of_cell cell) ^ "\t"
   in
-  (List.fold_left aux "" row.cells) ^ "\n"
+  (Base.List.fold row.cells ~init:"" ~f:aux) ^ "\n"
        
 let string_of_table table =
-  let str = List.fold_left (fun accum row -> accum ^ (string_of_row row)) "" table.rows in
+  let str = Base.List.fold table.rows ~init:"" ~f:(fun accum row -> accum ^ (string_of_row row))  in
   "\nTable\n" ^ str
 
 let zip header_row row =
@@ -55,6 +55,6 @@ let to_map_with_header dt =
      Base.Map.empty (module Base.String)
 
 let transform dt f =
-  let cells = Base.List.map dt.rows (fun row ->
-                              Base.List.map row.cells (fun cell -> cell.value)) in
+  let cells = Base.List.map dt.rows
+                (fun row -> Base.List.map row.cells (fun cell -> cell.value)) in
   Base.List.map cells f
