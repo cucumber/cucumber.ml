@@ -226,8 +226,7 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
     arg_opt = caml_alloc(1, 0);
     
     if(step->argument == NULL) {
-      arg_opt = Val_int(0);
-      Store_field(oStep, 2, arg_opt);
+      Store_field(oStep, 2, Val_int(0));
       CAMLreturn(oStep);
     }
     
