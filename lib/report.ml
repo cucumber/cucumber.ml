@@ -1,21 +1,16 @@
-let rec print_list = function
-  | [] -> ()
-  | [x] -> print_string x;
-  | x::xs -> print_string x; print_string ", "; print_list xs
-
 let format_stats stats =
   Base.List.fold stats ~init:[] ~f:(fun acc (text, count) ->
       if count > 0
-      then (string_of_int count ^ " " ^ text) :: acc
+      then (string_of_int count ^ " " ^ text)::acc
       else acc
-    )  
-             
-let print_scenario_report outcomeLists =
-  let scenarios = List.length outcomeLists in
-  let failed = List.length (Base.List.filter outcomeLists (fun os ->
+    )
+  
+let scenario_report outcome_lists =
+  let scenarios = Base.List.length outcome_lists in
+  let failed = Base.List.length (Base.List.filter outcome_lists (fun os ->
       (Outcome.count_outcome Outcome.Fail os) > 0 || (Outcome.count_outcome Outcome.Pending os) > 0))
   in
-  let undefined = List.length (Base.List.filter outcomeLists (fun os ->
+  let undefined = Base.List.length (Base.List.filter outcome_lists (fun os ->
       (Outcome.count_outcome Outcome.Undefined os) > 0))
   in
   let passed = scenarios - failed - undefined in
@@ -25,17 +20,11 @@ let print_scenario_report outcomeLists =
       ("failed", failed)
     ]
   in
-  let formattedStats = format_stats stats in 
-  if scenarios > 0 then
-    begin
-      print_string (string_of_int scenarios ^ " scenarios ");
-      print_string "("; print_list formattedStats; print_endline ")"
-    end
-  else
-    print_endline (string_of_int scenarios ^ " scenarios ")
+  let stats_str = Base.String.concat ~sep:", " (format_stats stats) in
+  Format.sprintf "@[%d@ scenarios@ @[(%s)@]@]@." scenarios stats_str
     
-let print_step_report outcomes =
-  let steps = List.length outcomes in
+let step_report outcomes =
+  let steps = Base.List.length outcomes in
   let stats = [
           ("passed",    Outcome.count_passed outcomes);
           ("pending",   Outcome.count_pending outcomes);
@@ -44,19 +33,12 @@ let print_step_report outcomes =
           ("failed",    Outcome.count_failed outcomes);
         ]
   in
-  let formattedStats = format_stats stats in
+  let stats_str = Base.String.concat ~sep:", " (format_stats stats) in
   if steps > 0 then
-    begin
-      print_string (string_of_int steps ^ " steps ");
-      print_string "("; print_list formattedStats; print_endline ")"
-    end
+    Format.sprintf "@[%d steps@ @[(%s)@]@]" steps stats_str
   else
-    print_string (string_of_int steps ^ " steps ")
+    Format.sprintf "@[%d steps@]" steps
   
 let print feature_file outcome_lists =
-  let outcomes = List.flatten outcome_lists in
-  print_endline ("Feature File: " ^ feature_file);
-  print_scenario_report outcome_lists;
-  print_step_report outcomes;
-  Outcome.print_outcomes outcomes;
-  print_newline (); print_newline ();
+  let outcomes = List.flatten outcome_lists in  
+  Format.printf "@[Feature File: %s@]@.@[%s@]@[%s@]@[%s@]@.@." feature_file (scenario_report outcome_lists) (step_report outcomes) (Outcome.string_of_outcomes outcomes)
