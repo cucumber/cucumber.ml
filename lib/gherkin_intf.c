@@ -211,7 +211,7 @@ CAMLprim value create_ocaml_tag_list(const PickleTags *tags) {
 
 CAMLprim value create_ocaml_step(const PickleStep *step) {
     CAMLparam0();
-    CAMLlocal2(oStep, arg);
+    CAMLlocal3(oStep, arg_opt, arg);
 
     oStep = caml_alloc(3, 0);
 
@@ -222,22 +222,27 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
     Store_field(oStep, 1, caml_copy_string(text));
 
     free(text);
+
+    arg_opt = caml_alloc(1, 0);
     
     if(step->argument == NULL) {
-      Store_field(oStep, 2, Val_int(0));
+      arg_opt = Val_int(0);
+      Store_field(oStep, 2, arg_opt);
       CAMLreturn(oStep);
     }
-
+    
     switch(step->argument->type) {
     case Argument_String:
       arg = caml_alloc(1, 0);
       Store_field(arg, 0, create_ocaml_docstring(step->argument));
-      Store_field(oStep, 2, arg);
+      Store_field(arg_opt, 0, arg);      
+      Store_field(oStep, 2, arg_opt);
       break;
     case Argument_Table:
-      arg = caml_alloc(1, 0);
+      arg = caml_alloc(1, 1);
       Store_field(arg, 0, create_ocaml_table(step->argument));
-      Store_field(oStep, 2, arg);
+      Store_field(arg_opt, 0, arg);
+      Store_field(oStep, 2, arg_opt);
       break;
     default:
       Store_field(oStep, 2, Val_int(0));
