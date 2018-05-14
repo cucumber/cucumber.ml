@@ -1,17 +1,17 @@
-type arg = DocString of Docstring.t | Table of Table.t | Empty
+type arg = DocString of Docstring.t | Table of Table.t
 
 type t = {
     locations : Location.t list;
     text : string;
-    argument : arg
+    argument : arg option
   }    
 
 let string_of_arg = function
-  | DocString doc ->
+  | Some DocString doc ->
      Docstring.string_of_docstring doc
-  | Table table ->
+  | Some Table table ->
      Table.string_of_table table
-  | Empty ->
+  | None ->
      ""
     
 let string_of_step step =  

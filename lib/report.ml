@@ -41,4 +41,4 @@ let step_report outcomes =
   
 let print feature_file outcome_lists =
   let outcomes = List.flatten outcome_lists in  
-  Format.printf "@[Feature File: %s@]@.@[%s@]@[%s@]@[%s@]@.@." feature_file (scenario_report outcome_lists) (step_report outcomes) (Outcome.string_of_outcomes outcomes)
+  Format.printf "@[Feature File: %s@]@.@[%s@]@[%s@]@.@[%s@]@.@." feature_file (scenario_report outcome_lists) (step_report outcomes) (Outcome.string_of_outcomes outcomes)
