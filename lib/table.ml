@@ -62,7 +62,7 @@ let transform dt f =
 let transform_with_header dt f =
   match dt.rows with
   | header::rows ->
-     let cells = Base.List.map dt.rows
+     let cells = Base.List.map rows
                    (fun row -> Base.List.map row.cells (fun cell -> cell.value)) in
      let header_cells = Base.List.map header.cells (fun hc -> hc.value) in
      Base.List.map cells (f header_cells)
