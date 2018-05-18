@@ -6,7 +6,7 @@ type cell = {
 type row = {
     cells : cell list
   }
-         
+
 type t = {
     rows: row list
   }
@@ -14,13 +14,13 @@ type t = {
 let string_of_cell cell =
   let loc_str = Location.string_of_location cell.location in
   loc_str ^ "\n" ^ cell.value
-  
+
 let string_of_row row =
   let aux accum cell =
     accum ^ (string_of_cell cell) ^ "\t"
   in
   (Base.List.fold row.cells ~init:"" ~f:aux) ^ "\n"
-       
+
 let string_of_table table =
   let str = Base.List.fold table.rows ~init:"" ~f:(fun accum row -> accum ^ (string_of_row row))  in
   "\nTable\n" ^ str
@@ -45,14 +45,15 @@ let update_col_map map row =
          | _ ->
             [v]
        )
-    
+
 let to_map_with_header dt =
+  let empty_map = (Base.Map.empty (module Base.String)) in
   match dt.rows with
   | header::rest ->
      let key_value_zip = List.flatten (Base.List.map (Base.List.rev rest) (zip_header header)) in
-     Base.List.fold key_value_zip ~init:(Base.Map.empty (module Base.String)) ~f:update_col_map
+     Base.List.fold key_value_zip ~init:empty_map ~f:update_col_map
   | [] ->
-     Base.Map.empty (module Base.String)
+     empty_map
 
 let transform dt f =
   let cells = Base.List.map dt.rows
@@ -68,14 +69,18 @@ let transform_with_header dt f =
      Base.List.map cells (f header_cells)
   | [] ->
      []
-      
+
 let zip_col cells =
   match cells with
   | head::rest ->
      (head.value, (Base.List.map rest (fun x -> x.value)))
   | [] ->
      ("", [""])
-  
+
+let transform_with_col_header dt f =
+  let zipped_cols = Base.List.map dt.rows (fun row -> zip_col row.cells) in
+  Base.List.map zipped_cols ~f:(fun (head, rest) -> f head rest)
+
 let to_map_with_col_header dt =
   let map = Base.Map.empty (module Base.String) in
   let zipped_cols = Base.List.map dt.rows (fun row -> zip_col row.cells) in
