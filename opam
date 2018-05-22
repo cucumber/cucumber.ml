@@ -1,10 +1,17 @@
-opam-version: "1.2"
+opam-version: "2.0"
 name: "cucumber"
 version: "0.1"
 author: "Christopher Yocum <cyocum@gmail.com>"
-maintainer "Christopher Yocum <cyocum@gmail.com>"
+homepage: "https://github.com/cucumber/cucumber.ml"
+bug-reports: "https://github.com/cucumber/cucumber.ml/issues"
+maintainer: "Christopher Yocum <cyocum@gmail.com>"
 build: [
        [make "build_library"]
 ]
 install: [make "install_library"]
 remove: ["ocamlfind" "remove" "cucumber"]
+depends: [
+  "re" {= "1.7.3"}
+  "base" {= "0.11.0"}
+  "cmdliner" {= "1.0.2"}
+]
