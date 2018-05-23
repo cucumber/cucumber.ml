@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "cucumber"
-version: "0.1"
+version: "0.3"
 author: "Christopher Yocum <cyocum@gmail.com>"
 homepage: "https://github.com/cucumber/cucumber.ml"
 bug-reports: "https://github.com/cucumber/cucumber.ml/issues"
