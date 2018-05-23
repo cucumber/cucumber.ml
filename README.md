@@ -17,6 +17,18 @@ checking out the Cucumber project from Github [Cucumber gherkin-c](
 https://github.com/cucumber/gherkin-c) then compiling the .so file and
 installing the shared library for your OS.
 
+## Building
+
+This project uses [Dune](https://github.com/ocaml/dune) as its build
+system.  To build the Cucumber library do:
+
+```bash
+	jbuilder build && jbuilder install
+```
+
+This will build and install the Cucumber library into your opam
+repository and make it available to ocamlfind.
+
 ## Overall Structure
 
 Cucumber.ml is a library that is used to create an executable runtime
