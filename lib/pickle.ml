@@ -25,8 +25,7 @@ external _load_feature_file : string -> t list = "load_feature_file"
   
 let load_feature_file fname =
   if Sys.file_exists fname then
-    let pickleLst = _load_feature_file fname in
-    Base.List.rev_map pickleLst (fun p -> {p with steps = (List.rev p.steps)})
+    Base.List.rev (_load_feature_file fname)
   else
     begin
       print_endline ("Feature File " ^ fname ^ " does not exist");
