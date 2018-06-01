@@ -1,0 +1,19 @@
+opam-version: "2.0"
+name: "cucumber"
+version: "0.3"
+author: "Christopher Yocum <cyocum@gmail.com>"
+homepage: "https://github.com/cucumber/cucumber.ml"
+bug-reports: "https://github.com/cucumber/cucumber.ml/issues"
+maintainer: "Christopher Yocum <cyocum@gmail.com>"
+build: [
+       ["jbuilder" "build" "-p" name "-j" jobs]
+]
+install: ["jbuilder" "install" "cucumber"]
+remove: ["jbuilder" "uninstall"]
+depends: [
+  "re" {= "1.7.3"}
+  "base" {= "0.11.0"}
+  "cmdliner" {= "1.0.2"}
+  "jbuilder" {build & >= "1.0+beta18.1"}
+]
+available: [ocaml-version >= "4.02.3"]

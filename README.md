@@ -17,6 +17,18 @@ checking out the Cucumber project from Github [Cucumber gherkin-c](
 https://github.com/cucumber/gherkin-c) then compiling the .so file and
 installing the shared library for your OS.
 
+## Building
+
+This project uses [Dune](https://github.com/ocaml/dune) as its build
+system.  To build the Cucumber library do:
+
+```bash
+	jbuilder build && jbuilder install
+```
+
+This will build and install the Cucumber library into your opam
+repository and make it available to ocamlfind.
+
 ## Overall Structure
 
 Cucumber.ml is a library that is used to create an executable runtime
@@ -24,9 +36,7 @@ of step definitions.  This means that the library assumes that, once
 `execute` is called, the library will read the command line arguments
 for feature files.  The user of the library does not need to specify
 command line options as the library will read them itself to determine
-what feature files an other things to run.  At the present time, it
-will only run one feature file.  This will change in future versions
-as more features are added (see WARNING above).
+what feature files an other things to run.
 
 ```ocaml
 type world = { foo : bool }
