@@ -7,10 +7,10 @@ let format_stats stats =
   
 let scenario_report outcome_lists =
   let scenarios = Base.List.length outcome_lists in
-  let failed = Base.List.length (Base.List.filter outcome_lists (fun os ->
+  let failed = Base.List.length (Base.List.filter outcome_lists ~f:(fun os ->
       (Outcome.count_outcome Outcome.Fail os) > 0 || (Outcome.count_outcome Outcome.Pending os) > 0))
   in
-  let undefined = Base.List.length (Base.List.filter outcome_lists (fun os ->
+  let undefined = Base.List.length (Base.List.filter outcome_lists ~f:(fun os ->
       (Outcome.count_outcome Outcome.Undefined os) > 0))
   in
   let passed = scenarios - failed - undefined in

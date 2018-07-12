@@ -30,15 +30,15 @@ let _Given re f cucc =
 let _When = _Given
 let _Then = _Given
 
-let find str {regex; stepdef} =
-  Re.execp regex str
+let find str step =
+  Re.execp step.regex str
 
 let actuate user_step step state =
   let groups = Step.find_groups step user_step.regex in
   user_step.stepdef state groups (Step.argument step) 
 
 let run cucc state step =
-  match (Base.List.filter cucc.stepdefs (find (Step.text step))) with
+  match (Base.List.filter cucc.stepdefs ~f:(find (Step.text step))) with
   | [user_step] ->
      actuate user_step step state
   | [] ->
@@ -90,7 +90,7 @@ let execute_pickle_lst cucc tags exit_status feature_file =
      Outcome.exit_status []
   | _ ->
      let runnable_pickle_lst = Pickle.filter_pickles tags pickle_lst in
-     let outcome_lst = Base.List.map runnable_pickle_lst (execute_pickle cucc) in
+     let outcome_lst = Base.List.map runnable_pickle_lst ~f:(execute_pickle cucc) in
      Report.print feature_file outcome_lst;
      if exit_status = 0 then
        Outcome.exit_status (List.flatten outcome_lst)
