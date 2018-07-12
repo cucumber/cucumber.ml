@@ -23,7 +23,7 @@ This project uses [Dune](https://github.com/ocaml/dune) as its build
 system.  To build the Cucumber library do:
 
 ```bash
-	jbuilder build && jbuilder install
+	dune build && dune install
 ```
 
 This will build and install the Cucumber library into your opam
