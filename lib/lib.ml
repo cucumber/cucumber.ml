@@ -97,9 +97,9 @@ let execute_pickle_lst cucc tags exit_status feature_file =
      else
        exit_status
 
-let files_arg = Cmdliner.Arg.(non_empty & pos_all file [] & info [] ~docv:"FILE")
-let tags_arg = Cmdliner.Arg.(value & opt (some string) None & info ["tags"] ~docv:"TAGS" ~doc:"Tags")
-     
+let files_arg = Cmdliner.Arg.(non_empty & pos_all file [] & info [] ~docv:"FILE" ~doc:"List of feature files to run")
+let tags_arg = Cmdliner.Arg.(value & opt (some string) None & info ["tags"] ~docv:"TAGS" ~doc:"Listing tags allows the use of the tagging feature of Cucumber.  The format is @tag to a feature or step to run and ~@tag to disallow a tag from running. Tags can be concatenated by using the comma. For instance, --tags \"@tag1,~@tag2\" will run features/steps tagged with @tag1 and will not run features/steaps with @tag2.")
+             
 let manage_command_line cucc tags_str files =
   let tags =
     match tags_str with
@@ -116,7 +116,7 @@ let manage_command_line cucc tags_str files =
   
 let cmd cucc =
   Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
-  Cmdliner.Term.info "Cucumber.ml" ~version:"0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
+  Cmdliner.Term.info "Cucumber.ml" ~version:"1.0" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
   
 (** Executes current Cucumber context and exits the process.
  *)
