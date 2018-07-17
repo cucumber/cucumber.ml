@@ -9,7 +9,7 @@ let string_of_outcome = function
 
 
 let count_outcome outcome outcome_lst = 
-  Base.List.length (Base.List.filter outcome_lst (fun o -> o = outcome))
+  Base.List.length (Base.List.filter outcome_lst ~f:(fun o -> o = outcome))
 
 let count_failed outcomeLst =
   count_outcome Fail outcomeLst
@@ -27,7 +27,7 @@ let count_passed outcomeLst =
   count_outcome Pass outcomeLst
 
 let print_outcomes outcomes =
-  Base.List.iter outcomes (fun o -> o |> string_of_outcome |> print_string)
+  Base.List.iter outcomes ~f:(fun o -> o |> string_of_outcome |> print_string)
   
 (** returns exit status  suitable for use with the exit function. *)
 let exit_status outcome_list =
@@ -38,4 +38,4 @@ let exit_status outcome_list =
     0  
 
 let string_of_outcomes outcomes =
-  Base.String.concat ~sep:"" (Base.List.map outcomes (string_of_outcome))
+  Base.String.concat ~sep:"" (Base.List.map outcomes ~f:(string_of_outcome))
