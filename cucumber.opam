@@ -1,12 +1,12 @@
 opam-version: "2.0"
 name: "cucumber"
-version: "1.0.0"
+version: "2.0.0-SNAPSHOT"
 author: "Christopher Yocum <cyocum@gmail.com>"
 homepage: "https://github.com/cucumber/cucumber.ml"
 bug-reports: "https://github.com/cucumber/cucumber.ml/issues"
 maintainer: "Christopher Yocum <cyocum@gmail.com>"
 build: [
-       ["jbuilder" "build" "-p" name "-j" jobs]
+       ["dune" "build" "-p" name "-j" jobs]
 ]
 install: ["jbuilder" "install" "cucumber"]
 remove: ["jbuilder" "uninstall"]
@@ -15,5 +15,6 @@ depends: [
   "base" {= "0.11.0"}
   "cmdliner" {= "1.0.2"}
   "dune" {build & >= "1.0.0"}
+  "cucumber-messages" {= "0.0.1"}
 ]
 available: [ocaml-version >= "4.02.3"]

@@ -1,0 +1,13 @@
+syntax = "proto3";
+package foo;
+
+message Wrapper {
+  oneof foo {
+    Source source = 1;
+  }
+}
+
+message Source {
+  string uri = 1;
+  string data = 2;
+}
