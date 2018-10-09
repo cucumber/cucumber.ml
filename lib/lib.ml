@@ -122,7 +122,7 @@ let cmd cucc =
  *)
 let execute cucc =
   Cmdliner.Term.(exit @@ eval (cmd cucc))
-  
+
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)
 let pass_with_state state = (Some state, Outcome.Pass)
