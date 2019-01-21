@@ -4,10 +4,6 @@ This implements the core Cucumber feature file language, Gherkin, and
 associated library for specifying the execution of those scenarios for
 the OCaml programming language.
 
-WARNING: This is still under heavy development and is provided as-is.
-This is for the adventurous who do not mind rough edges and
-half-implemented features.  All pull-requests are gratefully accepted.
-
 ## libgherkin.so
 
 To be able to run the code, you will need to have compiled and
@@ -23,7 +19,7 @@ This project uses [Dune](https://github.com/ocaml/dune) as its build
 system.  To build the Cucumber library do:
 
 ```bash
-	dune build && dune install
+dune build && dune install
 ```
 
 This will build and install the Cucumber library into your opam
