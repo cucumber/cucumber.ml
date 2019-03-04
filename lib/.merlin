@@ -1,2 +1,20 @@
+EXCLUDE_QUERY_DIR
+B /home/cyocum/.opam/ocaml_flamda/lib/base
+B /home/cyocum/.opam/ocaml_flamda/lib/base/caml
+B /home/cyocum/.opam/ocaml_flamda/lib/base/shadow_stdlib
+B /home/cyocum/.opam/ocaml_flamda/lib/cmdliner
+B /home/cyocum/.opam/ocaml_flamda/lib/re
+B /home/cyocum/.opam/ocaml_flamda/lib/re/perl
+B /home/cyocum/.opam/ocaml_flamda/lib/seq
+B /home/cyocum/.opam/ocaml_flamda/lib/sexplib0
+B ../_build/default/lib/.cucumber.objs/byte
+S /home/cyocum/.opam/ocaml_flamda/lib/base
+S /home/cyocum/.opam/ocaml_flamda/lib/base/caml
+S /home/cyocum/.opam/ocaml_flamda/lib/base/shadow_stdlib
+S /home/cyocum/.opam/ocaml_flamda/lib/cmdliner
+S /home/cyocum/.opam/ocaml_flamda/lib/re
+S /home/cyocum/.opam/ocaml_flamda/lib/re/perl
+S /home/cyocum/.opam/ocaml_flamda/lib/seq
+S /home/cyocum/.opam/ocaml_flamda/lib/sexplib0
 S .
-PKG re re.perl base cmdliner
+FLG -open Cucumber__ -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -w +42
