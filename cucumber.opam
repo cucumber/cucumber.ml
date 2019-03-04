@@ -6,10 +6,10 @@ homepage: "https://github.com/cucumber/cucumber.ml"
 bug-reports: "https://github.com/cucumber/cucumber.ml/issues"
 maintainer: "Christopher Yocum <cyocum@gmail.com>"
 build: [
-       ["jbuilder" "build" "-p" name "-j" jobs]
+       ["dune" "build" "-p" name "-j" jobs]
 ]
-install: ["jbuilder" "install" "cucumber"]
-remove: ["jbuilder" "uninstall"]
+install: ["dune" "install" "cucumber"]
+remove: ["dune" "uninstall"]
 depends: [
   "re" {= "1.7.3"}
   "base" {= "0.12.0"}
