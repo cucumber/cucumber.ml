@@ -30,9 +30,9 @@ let zip_header header_row row =
   let row = Base.List.map row.cells ~f:(fun cell -> cell.value) in
   let zipped_row = Base.List.zip header row in
   match zipped_row with
-  | Some x ->
+  | Base.List.Or_unequal_lengths.Ok x ->
      x
-  | None ->
+  | Base.List.Or_unequal_lengths.Unequal_lengths ->
      []
 
 let update_col_map map row =
