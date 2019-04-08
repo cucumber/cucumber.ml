@@ -11,7 +11,7 @@ val string_of_step : t -> string
 val find : t -> Re.re -> bool
 
 (** Extract string groups from the step to pass to a user supplied function *)
-val find_groups : t -> Re.re -> Re.groups option
+val find_groups : t -> Re.re -> Re.Group.t option
 
 (** obtain the full text string of a step *)
 val text : t -> string
