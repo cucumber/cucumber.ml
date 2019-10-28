@@ -93,11 +93,8 @@ CAMLprim value load_feature_file(value fileName) {
       Error *error = Parser_next_error(parser);
 
       char *error_str = char_of_wchar(error->error_text);
-      char *error_out = NULL;
-
-      sprintf(error_out, "%s at line %i column %i", error_str, error->location.line, error->location.column);
       
-      caml_failwith(error_out);
+      caml_failwith(error_str);
     }
   }
   
