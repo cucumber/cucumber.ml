@@ -12,7 +12,7 @@ install: ["dune" "install" "cucumber"]
 remove: ["dune" "uninstall"]
 depends: [
   "re" {= "1.9.0"}
-  "base" {= "0.12.0"}
+  "base" {= "0.13.0"}
   "cmdliner" {= "1.0.2"}
   "dune" {build & >= "1.0.0"}
 ]
