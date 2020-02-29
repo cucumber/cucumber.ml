@@ -64,15 +64,15 @@ CAMLprim value load_feature_file(value fileName) {
   oPickleList = Val_emptylist;
   
   if(result_code == 0) {
-    const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(sFileName, AstBuilder_get_result(builder));
+    const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(AstBuilder_get_result(builder, sFileName));
 
-    result_code = Compiler_compile(compiler, gherkin_document_event->gherkin_document);
+    result_code = Compiler_compile(compiler, gherkin_document_event->gherkin_document, source_event->source);
 
     Event_delete((const Event*)gherkin_document_event);
 
     if(result_code == 0) {
       while(Compiler_has_more_pickles(compiler)) {
-	const PickleEvent* pickle_event = PickleEvent_new(sFileName, Compiler_next_pickle(compiler));
+	const PickleEvent* pickle_event = PickleEvent_new(Compiler_next_pickle(compiler));
 	const Pickle *pickle = pickle_event->pickle;
 
 	oPickle = create_ocaml_pickle(pickle);

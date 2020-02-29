@@ -11,7 +11,8 @@ installed the Gherkin library as a shared object in your OS (so that
 it will be available to the linker at run time).  You can do this by
 checking out the Cucumber project from Github [Cucumber gherkin-c](
 https://github.com/cucumber/gherkin-c) then compiling the .so file and
-installing the shared library for your OS.
+installing the shared library for your OS.  The current working
+version of libgherkin-c is 7.0.4.
 
 ## Building
 
