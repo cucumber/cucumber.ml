@@ -25,7 +25,7 @@
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
 #include "caml/memory.h"
-#include "caml/fail.h"
+#include "caml/fail.h"  
 
 char * char_of_wchar(const wchar_t *);
 CAMLprim value process_gherkin_document(const char *, SourceEvent *, Builder *);
@@ -70,6 +70,13 @@ CAMLprim value load_feature_file(value fileName) {
       Error *error = Parser_next_error(parser);
 
       char *error_str = char_of_wchar(error->error_text);
+      Error_delete(error);
+
+      FileReader_delete(file_reader);
+      Parser_delete(parser);
+      TokenMatcher_delete(token_matcher);
+      TokenScanner_delete(token_scanner);
+      AstBuilder_delete(builder);
       
       caml_failwith(error_str);
     }
