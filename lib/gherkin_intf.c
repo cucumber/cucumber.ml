@@ -48,7 +48,7 @@ CAMLprim value load_feature_file(value fileName) {
   
   CAMLparam1(fileName);
   CAMLlocal3(oPickleList, oPickle, cons);
-  char *sFileName = String_val(fileName);
+  const char *sFileName = String_val(fileName);
   int result_code = 0;
   
   FileReader *file_reader = FileReader_new(sFileName);
