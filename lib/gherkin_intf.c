@@ -28,6 +28,7 @@
 #include "caml/fail.h"
 
 char * char_of_wchar(const wchar_t *);
+CAMLprim value process_gherkin_document(const char *, SourceEvent *, Builder *);
 CAMLprim value create_ocaml_pickle(const Pickle *);
 CAMLprim value create_ocaml_loc_list(const PickleLocations *);
 CAMLprim value create_ocaml_tag_list(const PickleTags *);
@@ -47,47 +48,23 @@ CAMLprim value load_feature_file(value fileName) {
   setbuf(stdout, NULL);
   
   CAMLparam1(fileName);
-  CAMLlocal3(oPickleList, oPickle, cons);
+  CAMLlocal1(oPickleList);
   const char *sFileName = String_val(fileName);
   int result_code = 0;
   
   FileReader *file_reader = FileReader_new(sFileName);
   SourceEvent *source_event = SourceEvent_new(sFileName, FileReader_read(file_reader));
+  Builder *builder = AstBuilder_new();
   TokenScanner *token_scanner = StringTokenScanner_new(source_event->source);
-  TokenMatcher* token_matcher = TokenMatcher_new(L"en");
-  Builder* builder = AstBuilder_new();
-  Parser* parser = Parser_new(builder);
-  Compiler* compiler = Compiler_new();
+  TokenMatcher *token_matcher = TokenMatcher_new(L"en");
+  Parser *parser = Parser_new(builder);
   
   result_code = Parser_parse(parser, token_matcher, token_scanner);
 
   oPickleList = Val_emptylist;
   
   if(result_code == 0) {
-    const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(AstBuilder_get_result(builder, sFileName));
-
-    result_code = Compiler_compile(compiler, gherkin_document_event->gherkin_document, source_event->source);
-
-    Event_delete((const Event*)gherkin_document_event);
-
-    if(result_code == 0) {
-      while(Compiler_has_more_pickles(compiler)) {
-	const PickleEvent* pickle_event = PickleEvent_new(Compiler_next_pickle(compiler));
-	const Pickle *pickle = pickle_event->pickle;
-
-	oPickle = create_ocaml_pickle(pickle);
-	
-	cons = caml_alloc(2, 0);
-
-	Store_field(cons, 0, oPickle);
-	Store_field(cons, 1, oPickleList);
-
-	oPickleList = cons;
-
-	
-	Event_delete((const Event*)pickle_event);
-      }
-    }
+    oPickleList = process_gherkin_document(sFileName, source_event, builder);
   } else {
     while(Parser_has_more_errors(parser)) {
       Error *error = Parser_next_error(parser);
@@ -99,12 +76,48 @@ CAMLprim value load_feature_file(value fileName) {
   }
   
   FileReader_delete(file_reader);
-  Event_delete((const Event*)source_event);
-  Compiler_delete(compiler);
   Parser_delete(parser);
-  AstBuilder_delete(builder);
   TokenMatcher_delete(token_matcher);
+  TokenScanner_delete(token_scanner);
+  AstBuilder_delete(builder);
   
+  CAMLreturn(oPickleList);
+}
+
+CAMLprim value process_gherkin_document(const char *sFileName,
+					SourceEvent *source_event,
+					Builder *builder) {
+  CAMLparam0();
+  CAMLlocal3(oPickleList, oPickle, cons);
+
+  oPickleList = Val_emptylist;
+
+  Compiler* compiler = Compiler_new();
+  const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(AstBuilder_get_result(builder, sFileName));
+  int result_code = Compiler_compile(compiler, gherkin_document_event->gherkin_document, source_event->source);
+
+  Event_delete((const Event*)gherkin_document_event);
+
+  if(result_code == 0) {
+    while(Compiler_has_more_pickles(compiler)) {
+      const PickleEvent* pickle_event = PickleEvent_new(Compiler_next_pickle(compiler));
+      const Pickle *pickle = pickle_event->pickle;
+
+      oPickle = create_ocaml_pickle(pickle);
+	
+      cons = caml_alloc(2, 0);
+
+      Store_field(cons, 0, oPickle);
+      Store_field(cons, 1, oPickleList);
+
+      oPickleList = cons;
+	
+      Event_delete((const Event*)pickle_event);
+    }
+  }
+
+  Compiler_delete(compiler);
+
   CAMLreturn(oPickleList);
 }
 
