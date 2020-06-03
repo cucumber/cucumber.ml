@@ -73,3 +73,5 @@ type t =
 | Vi
 | Zh_Cn
 | Zh_Tw
+
+val string_of_dialect : t -> string

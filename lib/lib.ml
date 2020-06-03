@@ -7,14 +7,14 @@ type 'a t = {
     before_hooks : (string -> unit) list;
     after_hooks : (string -> unit) list;
     stepdefs : 'a step list;
-    dialect : string
+    dialect : Dialect.t
   }
 
 let empty = {
     after_hooks = [];
     before_hooks = [];
     stepdefs = [];
-    dialect = "en"
+    dialect = Dialect.En
   }
 
 let _Before f cucc =
@@ -89,7 +89,7 @@ let execute_pickle cucc pickle =
   Base.List.rev outcomeLst
   
 let execute_pickle_lst cucc tags exit_status feature_file =  
-  let pickle_lst = Pickle.load_feature_file cucc.dialect feature_file in
+  let pickle_lst = Pickle.load_feature_file (Dialect.string_of_dialect cucc.dialect) feature_file in
   match pickle_lst with
   | [] ->
      Outcome.exit_status []

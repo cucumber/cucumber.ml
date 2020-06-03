@@ -26,7 +26,7 @@ val _After : (string -> unit) -> 'a t -> 'a t
 (** Set the human language dialect of a set of feature files. 
     The default is set to English (en).
  *)
-val set_dialect : string -> 'a t -> 'a t
+val set_dialect : Dialect.t -> 'a t -> 'a t
   
 (** Once the step definitions have been attached to the Cucumber
     context, this executes the step definitions then exits the program

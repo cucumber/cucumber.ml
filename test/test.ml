@@ -16,7 +16,7 @@ let man_state curr_state next_state =
 (* users can use the pipeline operator *)
 let foo = Cucumber.Lib.empty
           |>
-            Cucumber.Lib.set_dialect "en"
+            Cucumber.Lib.set_dialect Cucumber.Dialect.En
           |>
             Cucumber.Lib._After
               (fun str ->
