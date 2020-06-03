@@ -15,11 +15,11 @@ let steps p =
 let name p =
   p.name
 
-external _load_feature_file : string -> t list = "load_feature_file"
+external _load_feature_file : string -> string -> t list = "load_feature_file"
   
-let load_feature_file fname =
+let load_feature_file dialect fname  =
   if Sys.file_exists fname then
-    Base.List.rev (_load_feature_file fname)
+    Base.List.rev (_load_feature_file dialect fname)
   else
     begin
       print_endline ("Feature File " ^ fname ^ " does not exist");

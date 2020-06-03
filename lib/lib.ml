@@ -6,13 +6,15 @@ type 'a step = {
 type 'a t = {
     before_hooks : (string -> unit) list;
     after_hooks : (string -> unit) list;
-    stepdefs : 'a step list
+    stepdefs : 'a step list;
+    dialect : string
   }
 
 let empty = {
     after_hooks = [];
     before_hooks = [];
     stepdefs = [];
+    dialect = "en"
   }
 
 let _Before f cucc =
@@ -30,6 +32,9 @@ let _Given re f cucc =
 let _When = _Given
 let _Then = _Given
 
+let set_dialect dialect cucc =
+  { cucc with dialect }
+          
 let find str step =
   Re.execp step.regex str
 
@@ -84,7 +89,7 @@ let execute_pickle cucc pickle =
   Base.List.rev outcomeLst
   
 let execute_pickle_lst cucc tags exit_status feature_file =  
-  let pickle_lst = Pickle.load_feature_file feature_file in
+  let pickle_lst = Pickle.load_feature_file cucc.dialect feature_file in
   match pickle_lst with
   | [] ->
      Outcome.exit_status []
@@ -116,7 +121,7 @@ let manage_command_line cucc tags_str files =
   
 let cmd cucc =
   Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
-  Cmdliner.Term.info "Cucumber.ml" ~version:"1.0" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
+  Cmdliner.Term.info "Cucumber.ml" ~version:"1.0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
   
 (** Executes current Cucumber context and exits the process.
  *)

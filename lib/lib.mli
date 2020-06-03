@@ -23,6 +23,11 @@ val _Then : Re.re -> ('a option -> Re.Group.t option -> Step.arg option -> ('a o
 val _Before : (string -> unit) -> 'a t -> 'a t
 val _After : (string -> unit) -> 'a t -> 'a t
 
+(** Set the human language dialect of a set of feature files. 
+    The default is set to English (en).
+ *)
+val set_dialect : string -> 'a t -> 'a t
+  
 (** Once the step definitions have been attached to the Cucumber
     context, this executes the step definitions then exits the program
     with an appropriate exit code. *)

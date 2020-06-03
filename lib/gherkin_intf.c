@@ -28,7 +28,9 @@
 #include "caml/fail.h"  
 
 char * char_of_wchar(const wchar_t *);
+wchar_t * wchar_of_char(const char *);
 CAMLprim value process_gherkin_document(const char *, SourceEvent *, Builder *);
+CAMLprim value load_feature_file(value, value);
 CAMLprim value create_ocaml_pickle(const Pickle *);
 CAMLprim value create_ocaml_loc_list(const PickleLocations *);
 CAMLprim value create_ocaml_tag_list(const PickleTags *);
@@ -43,21 +45,23 @@ CAMLprim value create_ocaml_table_row_list(const PickleRows *);
 CAMLprim value create_ocaml_table_cell(const PickleCell *);
 CAMLprim value create_ocaml_error(const Error *);
 
-CAMLprim value load_feature_file(value fileName) {
+CAMLprim value load_feature_file(value dialect, value fileName) {
   setlocale(LC_ALL, "en_US.UTF-8");
   setbuf(stdout, NULL);
   
-  CAMLparam1(fileName);
-  CAMLlocal1(oPickleList);
-  const char *sFileName = String_val(fileName);
+  CAMLparam2(dialect, fileName);
+  CAMLlocal3(oPickleList, oPickle, cons);
+  char *sFileName = String_val(fileName);
+  const char *sDialect = String_val(dialect);
   int result_code = 0;
   
   FileReader *file_reader = FileReader_new(sFileName);
   SourceEvent *source_event = SourceEvent_new(sFileName, FileReader_read(file_reader));
   Builder *builder = AstBuilder_new();
   TokenScanner *token_scanner = StringTokenScanner_new(source_event->source);
-  TokenMatcher *token_matcher = TokenMatcher_new(L"en");
-  Parser *parser = Parser_new(builder);
+  TokenMatcher* token_matcher = TokenMatcher_new(wchar_of_char(sDialect));
+  Builder* builder = AstBuilder_new();
+  Parser* parser = Parser_new(builder);
   
   result_code = Parser_parse(parser, token_matcher, token_scanner);
 
@@ -383,4 +387,12 @@ char * char_of_wchar(const wchar_t *text) {
     wcstombs(text_out, text, text_len + 1);
 
     return text_out;
+}
+
+wchar_t * wchar_of_char(const char *text) {
+  size_t text_len = mbstowcs(NULL, text, 0);
+  wchar_t *text_out = malloc(sizeof(wchar_t) * (text_len + 1));
+  mbstowcs(text_out, text, text_len + 1);
+
+  return text_out;
 }

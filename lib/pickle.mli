@@ -4,7 +4,7 @@
 type t
 
 (** load a Gherkin feature file and return a list of Pickles*)
-val load_feature_file : string -> t list 
+val load_feature_file : string -> string -> t list 
 
 (** execute user supplied Before and After hooks *)
 val execute_hooks : (string -> unit) list -> t -> unit
