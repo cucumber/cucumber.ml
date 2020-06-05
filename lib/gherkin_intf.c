@@ -52,16 +52,16 @@ CAMLprim value load_feature_file(value dialect, value fileName) {
   CAMLparam2(dialect, fileName);
   CAMLlocal3(oPickleList, oPickle, cons);
 
-  char *sFileName = String_val(fileName);
+  const char *sFileName = String_val(fileName);
   const char *sDialect = String_val(dialect);
+
   FileReader *file_reader = FileReader_new(sFileName);
   SourceEvent *source_event = SourceEvent_new(sFileName, FileReader_read(file_reader));
-  Builder *builder = AstBuilder_new();
   TokenScanner *token_scanner = StringTokenScanner_new(source_event->source);
   TokenMatcher* token_matcher = TokenMatcher_new(wchar_of_char(sDialect));
   Builder* builder = AstBuilder_new();
   Parser* parser = Parser_new(builder);
-  Compiler* compiler = Compiler_new();
+
   int result_code = Parser_parse(parser, token_matcher, token_scanner);
 
   oPickleList = Val_emptylist;
