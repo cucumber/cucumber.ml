@@ -13,7 +13,7 @@
 (library
 	(name cucumber)
 	(public_name cucumber)
-	(libraries cmdliner re re.perl base)
+	(libraries cmdliner re re.perl base lwt lwt.unix)
 	(synopsis "BDD style testing for OCaml")
 	(foreign_archives gherkin-c)
 	(foreign_stubs (language c) (names gherkin_intf)))
