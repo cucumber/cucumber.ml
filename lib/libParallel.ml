@@ -34,6 +34,9 @@ let _Given re f cucc =
 let _When = _Given
 let _Then = _Given
 
+let set_dialect dialect cucc =
+  { cucc with dialect }
+          
 let match_pickle_step_to_stepdef pickle_step step_def =
   (Step.find pickle_step step_def.regex)
 

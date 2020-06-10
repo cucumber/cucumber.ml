@@ -19,5 +19,7 @@ val _Then : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outco
 (** Attach a BeforeStep and AfterStep hooks to a Cucumber context. *)
 val _Before : (string -> unit Lwt.t) -> 'a t -> 'a t
 val _After : (string -> unit Lwt.t) -> 'a t -> 'a t
-       
+
+val set_dialect : Dialect.t -> 'a t -> 'a t
+  
 val execute : 'a t -> string -> ('a option * Outcome.t) list
