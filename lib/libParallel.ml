@@ -48,7 +48,7 @@ let match_stepdefs step_defs pickle_step =
      (fun _ ->
        (Lwt_io.eprintlf "Could not find step: %s" (Step.text pickle_step))
        >>=
-         (fun _ -> Lwt.return (None, Outcome.Undefined))
+     (fun _ -> Lwt.return (None, Outcome.Undefined))
      )
   | _ ->
      (fun _ ->
@@ -58,7 +58,7 @@ let match_stepdefs step_defs pickle_step =
     
 let construct_computation cucc pickle =
   let pickle_steps = (Pickle.steps pickle) in
-  let steps_to_run = Base.List.fold pickle_steps ~init:[]
+  let steps_to_run = Base.List.fold (Base.List.rev pickle_steps) ~init:[]
                        ~f:(fun accum s ->
                          (match_stepdefs cucc.stepdefs s)::accum
                        ) in
