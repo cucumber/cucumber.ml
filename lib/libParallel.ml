@@ -40,31 +40,20 @@ let match_pickle_step_to_stepdef pickle_step step_def =
     else
       false
 
-let match_stepdefs
-      (step_defs: 'a step list)
-      (pickle_step : Step.t)
-    : (('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t)  =
+let match_stepdefs step_defs pickle_step =
   match (Base.List.filter step_defs ~f:(match_pickle_step_to_stepdef pickle_step)) with  
   | [matched_user_stepdef] ->
      let bar = matched_user_stepdef.stepdef (Step.find_groups pickle_step matched_user_stepdef.regex) (Step.argument pickle_step) in
      bar
   | _ ->
-     let baz (a: ('a option * Outcome.t)) = Lwt.return a in
-     baz
+     (fun _ -> Lwt.return (None, Outcome.Undefined))
 
-let foo
-      (stepdefs: 'a step list)
-      (accum : (('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t) list)
-      (pickle_step : Step.t)  =
+let foo stepdefs accum pickle_step =
   (match_stepdefs stepdefs pickle_step)::accum
 
-let construct_computation
-      (cucc: 'a t)
-      (pickle : Pickle.t) =
+let construct_computation cucc pickle =
   let pickle_steps = (Pickle.steps pickle) in
-  let steps_to_run = Base.List.fold
-                       pickle_steps
-                       ~init:[]
+  let steps_to_run = Base.List.fold pickle_steps ~init:[]
                        ~f:(fun accum s ->
                          foo cucc.stepdefs accum s 
                        ) in
