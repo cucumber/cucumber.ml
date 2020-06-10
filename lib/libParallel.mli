@@ -12,12 +12,12 @@ val empty : 'a t
 
 val _Given : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t) -> 'a t -> 'a t
 
-(*val _When : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t)
-  
-val _Then : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t)*)
+val _When : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t) -> 'a t -> 'a t
+
+val _Then : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.t) -> ('a option * Outcome.t) Lwt.t) -> 'a t -> 'a t
 
 (** Attach a BeforeStep and AfterStep hooks to a Cucumber context. *)
 val _Before : (string -> unit Lwt.t) -> 'a t -> 'a t
 val _After : (string -> unit Lwt.t) -> 'a t -> 'a t
        
-val execute_computation : 'a t -> string -> ('a option * Outcome.t)
+val execute : 'a t -> string -> ('a option * Outcome.t) list

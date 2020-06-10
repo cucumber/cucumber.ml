@@ -44,8 +44,17 @@ let match_stepdefs step_defs pickle_step =
   match (Base.List.filter step_defs ~f:(match_pickle_step_to_stepdef pickle_step)) with  
   | [matched_user_stepdef] ->
      matched_user_stepdef.stepdef (Step.find_groups pickle_step matched_user_stepdef.regex) (Step.argument pickle_step)
+  | [] ->
+     (fun _ ->
+       (Lwt_io.eprintlf "Could not find step: %s" (Step.text pickle_step))
+       >>=
+         (fun _ -> Lwt.return (None, Outcome.Undefined))
+     )
   | _ ->
-     (fun _ -> Lwt.return (None, Outcome.Undefined))
+     (fun _ ->
+       (Lwt_io.eprintlf "Ambigious match: %s" (Step.text pickle_step))
+       >>=
+       (fun _ -> Lwt.return (None, Outcome.Undefined)))
 
 let construct_computation cucc pickle =
   let pickle_steps = (Pickle.steps pickle) in
@@ -58,15 +67,16 @@ let construct_computation cucc pickle =
     >>=
       (fun _ -> Lwt.return (None, Outcome.Pass))
   in
-  Base.List.fold steps_to_run ~init:start_computation ~f:(Lwt.bind)
+  let middle_computation = Base.List.fold steps_to_run ~init:start_computation ~f:(Lwt.bind) in
+  middle_computation
+  >>= (fun final_state ->
+    (Pickle.construct_hooks cucc.after_hooks pickle)
+    >>= (fun _ -> Lwt.return final_state))
+  
 
-let execute_computation cucc file_name =
+let execute cucc file_name =
   let pickles = Pickle.load_feature_file
                   (Dialect.string_of_dialect cucc.dialect)
                   file_name in
-  match pickles with
-  | x::_ ->
-     Lwt_main.run (construct_computation cucc x)
-  | _ ->
-     (None, Outcome.Undefined)
-
+  let computations = Base.List.map pickles ~f:(construct_computation cucc) in
+  Lwt_main.run (Lwt.all computations)
