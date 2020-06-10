@@ -78,5 +78,11 @@ let execute cucc file_name =
   let pickles = Pickle.load_feature_file
                   (Dialect.string_of_dialect cucc.dialect)
                   file_name in
-  let computations = Base.List.map pickles ~f:(construct_computation cucc) in
+  let computations =
+    match pickles with
+    | [] ->
+       [Lwt.return (None, Outcome.Undefined)]
+    | _ ->
+       Base.List.map pickles ~f:(construct_computation cucc)
+  in
   Lwt_main.run (Lwt.all computations)
