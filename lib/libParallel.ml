@@ -35,10 +35,7 @@ let _When = _Given
 let _Then = _Given
 
 let match_pickle_step_to_stepdef pickle_step step_def =
-    if (Step.find pickle_step step_def.regex) then
-      true
-    else
-      false
+  (Step.find pickle_step step_def.regex)
 
 let match_stepdefs step_defs pickle_step =
   match (Base.List.filter step_defs ~f:(match_pickle_step_to_stepdef pickle_step)) with  
@@ -55,7 +52,7 @@ let match_stepdefs step_defs pickle_step =
        (Lwt_io.eprintlf "Ambigious match: %s" (Step.text pickle_step))
        >>=
        (fun _ -> Lwt.return (None, Outcome.Undefined)))
-
+    
 let construct_computation cucc pickle =
   let pickle_steps = (Pickle.steps pickle) in
   let steps_to_run = Base.List.fold pickle_steps ~init:[]
