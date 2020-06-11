@@ -42,7 +42,7 @@ let foo = Cucumber.LibParallel.empty
                  ))
           
 let _ =
-  match (Cucumber.LibParallel.execute foo "test/test_parallel.feature") with
+  match (Cucumber.LibParallel.execute foo "test/test_parallel.feature" None) with
   | [(Some x, o)] ->
      print_endline (string_of_int x.foo)
   | _ ->

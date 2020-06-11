@@ -57,8 +57,8 @@ let match_stepdefs step_defs pickle_step =
        (fun _ -> Lwt.return (None, Outcome.Undefined)))
     
 let construct_computation cucc pickle =
-  let pickle_steps = (Pickle.steps pickle) in
-  let steps_to_run = Base.List.fold (Base.List.rev pickle_steps) ~init:[]
+  let pickle_steps = Base.List.rev (Pickle.steps pickle) in
+  let steps_to_run = Base.List.fold pickle_steps ~init:[]
                        ~f:(fun accum s ->
                          (match_stepdefs cucc.stepdefs s)::accum
                        ) in
@@ -73,8 +73,7 @@ let construct_computation cucc pickle =
     (Pickle.construct_hooks cucc.after_hooks pickle)
     >>= (fun _ -> Lwt.return final_state))
   
-
-let execute cucc file_name =
+let execute cucc file_name tag_expr =
   let pickles = Pickle.load_feature_file
                   (Dialect.string_of_dialect cucc.dialect)
                   file_name in
@@ -83,6 +82,14 @@ let execute cucc file_name =
     | [] ->
        [Lwt.return (None, Outcome.Undefined)]
     | _ ->
-       Base.List.map pickles ~f:(construct_computation cucc)
+       let tags =
+         match tag_expr with
+         | Some str ->
+            Tag.list_of_string str
+         | None ->
+            Tag.list_of_string ""
+       in      
+       let runnable_pickles = Pickle.filter_pickles tags pickles in
+       Base.List.map runnable_pickles ~f:(construct_computation cucc)
   in
   Lwt_main.run (Lwt.all computations)
