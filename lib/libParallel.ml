@@ -57,11 +57,11 @@ let match_stepdefs step_defs pickle_step =
        (fun _ -> Lwt.return (None, Outcome.Undefined)))
     
 let construct_computation cucc pickle =
-  let pickle_steps = Base.List.rev (Pickle.steps pickle) in
-  let steps_to_run = Base.List.fold pickle_steps ~init:[]
+  let pickle_steps = Pickle.steps pickle in
+  let steps_to_run = Base.List.rev (Base.List.fold pickle_steps ~init:[]
                        ~f:(fun accum s ->
                          (match_stepdefs cucc.stepdefs s)::accum
-                       ) in
+                       )) in
   let start_computation =
     (Pickle.construct_hooks cucc.before_hooks pickle)
     >>=
