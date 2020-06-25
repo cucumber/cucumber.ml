@@ -1,5 +1,6 @@
 (lang dune 2.6)
 (version 2.0.0)
+(name cucumber)
 
 (generate_opam_files true)
 
@@ -14,7 +15,7 @@
 	(description "Cucumber BDD for OCaml using the gherkin-c library to parse")
 	(depends
 	 (dune (>= 2.6))
-	 (re (= 1.9.0))
-	 (base (= 0.14.0))
-	 (cmdliner (= 1.0.2))))
+	 (re (>= 1.9.0))
+	 (base (>= v0.14.0))
+	 (cmdliner (>= 1.0.4))))
 	 
