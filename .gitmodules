@@ -1,6 +1,3 @@
-[submodule "gherkin-c"]
-	path = gherkin-c
-	url = git://github.com/cucumber/gherkin-c.git
 [submodule "lib/gherkin-c"]
 	path = lib/gherkin-c
 	url = git://github.com/cucumber/gherkin-c.git
