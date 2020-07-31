@@ -24,4 +24,13 @@ val print_outcomes : t list -> unit
 (** calculate the exit status based on the list of outcomes.  If any
    are other than Pass, the exit status returned is non-zero *)
 val exit_status : t list -> int
-    
+
+module type OUTCOME_STATE =
+  sig
+    type outcome
+    val create : t -> outcome
+    val add : outcome -> t -> outcome
+    val string_of_states : outcome -> string
+  end
+
+module OutcomeState : OUTCOME_STATE
