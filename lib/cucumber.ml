@@ -9,3 +9,4 @@ module Report = Report
 module Dialect = Dialect
 module Lib = Lib
 module LibParallel = LibParallel
+module OutcomeManager = OutcomeManager

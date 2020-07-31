@@ -10,11 +10,11 @@ val empty : 'a t
     tuple which has an optional state parameter and an Outcome.t (see
     the Outcome module for more information *)
 
-val _Given : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.OutcomeState.outcome) -> ('a option * Outcome.OutcomeState.outcome) Lwt.t) -> 'a t -> 'a t
+val _Given : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * OutcomeManager.t) -> ('a option * OutcomeManager.t) Lwt.t) -> 'a t -> 'a t
 
-val _When : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.OutcomeState.outcome) -> ('a option * Outcome.OutcomeState.outcome) Lwt.t) -> 'a t -> 'a t
+val _When : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * OutcomeManager.t) -> ('a option * OutcomeManager.t) Lwt.t) -> 'a t -> 'a t
 
-val _Then : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * Outcome.OutcomeState.outcome) -> ('a option * Outcome.OutcomeState.outcome) Lwt.t) -> 'a t -> 'a t
+val _Then : Re.re -> (Re.Group.t option -> Step.arg option -> ('a option * OutcomeManager.t) -> ('a option * OutcomeManager.t) Lwt.t) -> 'a t -> 'a t
 
 (** Attach a BeforeStep and AfterStep hooks to a Cucumber context. *)
 val _Before : (string -> unit Lwt.t) -> 'a t -> 'a t
@@ -22,4 +22,4 @@ val _After : (string -> unit Lwt.t) -> 'a t -> 'a t
 
 val set_dialect : Dialect.t -> 'a t -> 'a t
   
-val execute : 'a t -> string -> string option -> ('a option * Outcome.OutcomeState.outcome) list
+val execute : 'a t -> string -> string option -> ('a option * OutcomeManager.t) list

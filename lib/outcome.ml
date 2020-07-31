@@ -40,24 +40,3 @@ let exit_status outcome_list =
 let string_of_outcomes outcomes =
   Base.String.concat ~sep:"" (Base.List.map outcomes ~f:(string_of_outcome))
 
-module type OUTCOME_STATE =
-  sig
-    type outcome
-    val create : t -> outcome
-    val add : outcome -> t -> outcome
-    val string_of_states : outcome -> string
-  end
-  
-module OutcomeState : OUTCOME_STATE =
-  struct
-    type outcome = t list
-
-    let create outcome_start =
-      [outcome_start]
-
-    let add outcomes outcome_to_add =
-      outcome_to_add :: outcomes
-
-    let string_of_states states =
-      string_of_outcomes (Base.List.rev states)
-  end

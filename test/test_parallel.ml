@@ -6,9 +6,9 @@ let bar state outcome =
   match state with
   | Some x ->
      print_endline ("In Foo with some state: " ^ (string_of_int x.foo));
-     (Some { foo = x.foo + 1 }, Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)
+     (Some { foo = x.foo + 1 }, Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)
   | None ->
-     (Some { foo = 12}, Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)
+     (Some { foo = 12}, Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)
           
 (* users can use the pipeline operator *)
 let foo = Cucumber.LibParallel.empty
@@ -20,9 +20,9 @@ let foo = Cucumber.LibParallel.empty
                   let bar =
                     match foo_state_opt with
                     | Some x ->
-                       (Some { foo = (succ x.foo)}, (Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass))
+                       (Some { foo = (succ x.foo)}, (Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass))
                     | None ->
-                       (Some { foo = 1}, (Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass))
+                       (Some { foo = 1}, (Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass))
                   in
                   Lwt.return bar)))
           |> 
@@ -37,9 +37,9 @@ let foo = Cucumber.LibParallel.empty
                (fun group arg (foo_state_opt, outcome) ->
                         match foo_state_opt with
                         | Some x ->
-                           (Lwt_io.printl "I am in the then: I have done the thing" ) >>= (fun _ -> Lwt.return (Some {foo = x.foo + 1}, (Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)))
+                           (Lwt_io.printl "I am in the then: I have done the thing" ) >>= (fun _ -> Lwt.return (Some {foo = x.foo + 1}, (Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)))
                         | None ->
-                           Lwt.return (Some { foo = 1}, (Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass))                          
+                           Lwt.return (Some { foo = 1}, (Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass))                          
             ))
           |>
             (Cucumber.LibParallel._Given
@@ -55,9 +55,9 @@ let foo = Cucumber.LibParallel.empty
                   let bar =
                     match foo_state_opt with
                     | Some x ->
-                       (Some { foo = (succ x.foo)}, Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)
+                       (Some { foo = (succ x.foo)}, Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)
                     | None ->
-                       (Some { foo = 1}, Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)
+                       (Some { foo = 1}, Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)
                   in
                   Lwt.return bar)))
           |>
@@ -66,9 +66,9 @@ let foo = Cucumber.LibParallel.empty
                (fun group arg (foo_state_opt, outcome) ->
                  match foo_state_opt with
                  | Some x ->
-                    Lwt.return (Some {foo = x.foo + 1}, Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)
+                    Lwt.return (Some {foo = x.foo + 1}, Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)
                  | None ->
-                    Lwt.return (Some { foo = 1}, Cucumber.Outcome.OutcomeState.add outcome Cucumber.Outcome.Pass)
+                    Lwt.return (Some { foo = 1}, Cucumber.OutcomeManager.add outcome Cucumber.Outcome.Pass)
             ))
           
 let _ =
@@ -77,7 +77,7 @@ let _ =
       match world with
       | Some x ->
          print_endline (string_of_int x.foo);
-         print_endline (Cucumber.Outcome.OutcomeState.string_of_states o);
+         print_endline (Cucumber.OutcomeManager.string_of_states o);
       | None ->
          print_endline "Something went wrong"
     )
