@@ -6,13 +6,25 @@ the OCaml programming language.
 
 ## libgherkin.so
 
-To be able to run the code, you will need to have compiled and
-installed the Gherkin library as a shared object in your OS (so that
-it will be available to the linker at run time).  You can do this by
-checking out the Cucumber project from Github [Cucumber gherkin-c](
-https://github.com/cucumber/gherkin-c) then compiling the .so file and
-installing the shared library for your OS.  The current working
-version of libgherkin-c is 7.0.4.
+Libgherkin.so is the C library that Cucumber.ml uses to parse the
+feature files.  This uses a git submodule to bring the
+[gherkin-c](https://github.com/cucumber/gherkin-c) library into the
+current project.  This means that you will need to init the submodule
+after you checkout the repository like so:
+
+```bash
+git submodule update
+```
+
+This will bring the gherkin-c library into the `lib` directory.  From
+there, it is as easy as doing:
+
+```bash
+dune build && dune install
+```
+
+This will build and install Cucumber.ml into your
+[Opam](https://opam.ocaml.org/) repository.
 
 ## Building
 
