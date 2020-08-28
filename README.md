@@ -16,15 +16,7 @@ after you checkout the repository like so:
 git submodule update
 ```
 
-This will bring the gherkin-c library into the `lib` directory.  From
-there, it is as easy as doing:
-
-```bash
-dune build && dune install
-```
-
-This will build and install Cucumber.ml into your
-[Opam](https://opam.ocaml.org/) repository.
+This will bring the gherkin-c library into the `lib` directory.
 
 ## Building
 
@@ -35,8 +27,9 @@ system.  To build the Cucumber library do:
 dune build && dune install
 ```
 
-This will build and install the Cucumber library into your opam
-repository and make it available to ocamlfind.
+This will build and install the Cucumber library into your
+[Opam](https://opam.ocaml.org/) repository and make it available to
+ocamlfind.
 
 ## Overall Structure
 
