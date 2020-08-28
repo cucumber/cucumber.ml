@@ -48,13 +48,13 @@ let match_stepdefs step_defs pickle_step =
      (fun _ ->
        (Lwt_io.eprintlf "Could not find step: %s" (Step.text pickle_step))
        >>=
-     (fun _ -> Lwt.return (None, OutcomeManager.create Outcome.Undefined))
+     (fun _ -> Lwt.return (None, OutcomeManager.create (Some Outcome.Undefined)))
      )
   | _ ->
      (fun _ ->
        (Lwt_io.eprintlf "Ambigious match: %s" (Step.text pickle_step))
        >>=
-       (fun _ -> Lwt.return (None, OutcomeManager.create Outcome.Undefined)))
+       (fun _ -> Lwt.return (None, OutcomeManager.create (Some Outcome.Undefined))))
     
 let construct_computation cucc pickle =
   let pickle_steps = Pickle.steps pickle in
@@ -65,7 +65,7 @@ let construct_computation cucc pickle =
   let start_computation =
     (Pickle.construct_hooks cucc.before_hooks pickle)
     >>=
-      (fun _ -> Lwt.return (None, OutcomeManager.create Outcome.Pass))
+      (fun _ -> Lwt.return (None, OutcomeManager.create None))
   in
   let middle_computation = Base.List.fold steps_to_run ~init:start_computation ~f:(Lwt.bind) in
   middle_computation
@@ -80,7 +80,7 @@ let execute cucc file_name tag_expr =
   let computations =
     match pickles with
     | [] ->
-       [Lwt.return (None, OutcomeManager.create Outcome.Undefined)]
+       [Lwt.return (None, OutcomeManager.create (Some Outcome.Undefined))]
     | _ ->
        let tags =
          match tag_expr with

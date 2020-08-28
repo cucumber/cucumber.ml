@@ -1,7 +1,11 @@
 type t = Outcome.t list
 
 let create outcome_start =
-  [outcome_start]
+  match outcome_start with
+  | Some x ->
+     [x]
+  | None ->
+     []
 
 let add outcomes outcome_to_add =
   outcome_to_add :: outcomes
