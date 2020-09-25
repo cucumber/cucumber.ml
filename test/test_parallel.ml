@@ -55,34 +55,34 @@ let second_then_func group arg (foo_state_opt, outcome) =
   )  
   
 (* users can use the pipeline operator *)
-let foo = Cucumber.LibParallel.empty
+let foo = Cucumber.LibLwt.empty
           |>
-            (Cucumber.LibParallel._When
+            (Cucumber.LibLwt._When
                (Re.Perl.compile_pat "^I have a thing to do$")
                first_when_func)
           |> 
-            (Cucumber.LibParallel._Given
+            (Cucumber.LibLwt._Given
                (Re.Perl.compile_pat "^I have a simple background$")
                first_given_func)
           |>
-            (Cucumber.LibParallel._Then
+            (Cucumber.LibLwt._Then
                (Re.Perl.compile_pat "^I have done the thing$")
                first_then_func)
           |>
-            (Cucumber.LibParallel._Given
+            (Cucumber.LibLwt._Given
               (Re.Perl.compile_pat "^I have another simple background$")
               second_given_func)
           |>
-            (Cucumber.LibParallel._When
+            (Cucumber.LibLwt._When
                (Re.Perl.compile_pat "^I have some other thing to do$")
                second_when_func)
           |>
-            (Cucumber.LibParallel._Then
+            (Cucumber.LibLwt._Then
                (Re.Perl.compile_pat "^I should have done the thing$")
                second_then_func)
           
 let _ =
-  Base.List.iter (Cucumber.LibParallel.execute foo "test/test_parallel.feature" None)
+  Base.List.iter (Cucumber.LibLwt.execute foo "test/test_parallel.feature" None)
     ~f:(fun (world, o) ->
       match world with
       | Some x ->

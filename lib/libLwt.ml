@@ -62,13 +62,13 @@ let construct_computation cucc pickle =
                        ~f:(fun accum s ->
                          (match_stepdefs cucc.stepdefs s)::accum
                        )) in
-  let start_computation =
+  let before_hooks =
     (Pickle.construct_hooks cucc.before_hooks pickle)
     >>=
       (fun _ -> Lwt.return (None, OutcomeManager.create None))
   in
-  let middle_computation = Base.List.fold steps_to_run ~init:start_computation ~f:(Lwt.bind) in
-  middle_computation
+  let steps = Base.List.fold steps_to_run ~init:before_hooks ~f:(Lwt.bind) in
+  steps
   >>= (fun final_state ->
     (Pickle.construct_hooks cucc.after_hooks pickle)
     >>= (fun _ -> Lwt.return final_state))

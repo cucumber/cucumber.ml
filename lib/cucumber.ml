@@ -8,5 +8,5 @@ module Pickle = Pickle
 module Report = Report
 module Dialect = Dialect
 module Lib = Lib
-module LibParallel = LibParallel
+module LibLwt = LibLwt
 module OutcomeManager = OutcomeManager
