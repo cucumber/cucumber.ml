@@ -37,11 +37,15 @@ Cucumber.ml is split between two modules: `Cucumber.Lib` and
 `Cucumber.LibLwt`.
 
 Cucumber.ml is a library that is used to create an executable runtime
-of step definitions.  This means that the library assumes that, once
-`execute` is called, the library will read the command line arguments
-for feature files.  The user of the library does not need to specify
-command line options as the library will read them itself to determine
-what feature files an other things to run.
+of step definitions.  The synchronous version of the library assumes
+that, once `execute` is called, the library will read the command line
+arguments for feature files.  The user of the library does not need to
+specify command line options as the library will read them itself to
+determine what feature files an other things to run.  The concurrent
+version of the library, on the other hand, requires that the user
+provide the tags as a string and a list of paths to files (see
+`test/test_concurrent.ml`) for information on the design of the
+concurrent version see below.
 
 ```ocaml
 type world = { foo : bool }
@@ -102,9 +106,9 @@ for pass, F or fail, P for pending, and U for undefined).
 
 # Cucumber Lwt
 
-To allow concurrancy, Lwt support is included.  This is fairly similar
-to the synchonous verison given above but with a few important changes
-to the function signatures.  To seperate the differing
+To allow concurrency, Lwt support is included.  This is fairly similar
+to the synchronous version given above but with a few important changes
+to the function signatures.  To separate the differing
 implementations, the user will need to use the `Cucumber.LibLwt`
 module rather than the `Cucumber.Lib` module.
 
@@ -115,15 +119,15 @@ Re.Group.t option -> Step.arg option -> ('a option * OutcomeManager.t) -> ('a op
 ```
 
 The main portion of the function signature that the user needs to pay
-attension to is the `('a option * OutcomeManager.t) -> ('a option *
-OutcomeManager.t) `.  The step definition function now takes a tuple
-which has two members: the state of the step and the `OutcomeManager`.
-The `OutcomeManager` saves the outcomes from all steps.  The user can
-only add to the `OutcomeManager`, which is meant to assure the user
-that steps have not changed the outcome of any previous steps.
-Although, there is a flaw in the design where the step can return an
-entirely new and empty `OutcomeManager`; although, returning a fresh
-`OutcomeManager` would be self-defeating.
+attention to is the `('a option * OutcomeManager.t) -> ('a option *
+OutcomeManager.t) Lwt.t `.  The step definition function now takes a
+tuple which has two members: the state of the step and the
+`OutcomeManager`.  The `OutcomeManager` saves the outcomes from all
+steps.  The user can only add to the `OutcomeManager`, which is meant
+to assure the user that steps have not changed the outcome of any
+previous steps.  Although, there is a flaw in the design where the
+step can return an entirely new and empty `OutcomeManager`; although,
+returning a fresh `OutcomeManager` would be self-defeating.
 
 The return value of the step definition is an Lwt promise which can
 have any state to pass forward to the next step and an updated
@@ -153,6 +157,6 @@ run at any time.  Once this is done, `execute` will pass the
 constructed monads back to the user as a list.  At this point, the
 user may bind more functions or whatever the user needs to do.  It is
 good to remember that the first stitching together a run order for the
-steps is done synchonously before the monads are handed back to the
+steps is done synchronously before the monads are handed back to the
 user for further processing or running by `Lwt_main.run`.
 
