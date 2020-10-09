@@ -34,7 +34,7 @@ ocamlfind.
 ## Overall Structure
 
 Cucumber.ml is split between two modules: `Cucumber.Lib` and
-`Cucumber.LibParallel`.  The first will run the
+`Cucumber.LibLwt`.
 
 Cucumber.ml is a library that is used to create an executable runtime
 of step definitions.  This means that the library assumes that, once
@@ -105,7 +105,7 @@ for pass, F or fail, P for pending, and U for undefined).
 To allow concurrancy, Lwt support is included.  This is fairly similar
 to the synchonous verison given above but with a few important changes
 to the function signatures.  To seperate the differing
-implementations, the user will need to use the `Cucumber.LibParallel`
+implementations, the user will need to use the `Cucumber.LibLwt`
 module rather than the `Cucumber.Lib` module.
 
 The function signature for a normal step definition is:
@@ -130,9 +130,9 @@ have any state to pass forward to the next step and an updated
 OutcomeManager where the outcome of the step is recorded by using the
 `OutcomeManager.add` function.  
 
-There are examples of use in the `test/test_parallel.ml` and a feature
+There are examples of use in the `test/test_concurrent.ml` and a feature
 file that will trigger the step definitions in
-`test/test_parallel.feature`.
+`test/test_concurrent.feature`.
 
 # Design of Concurrent Cucumber
 
@@ -147,14 +147,12 @@ runnable pickles.  Next, it matches the runnable pickles against the
 regular expressions given by the user which gives an ordering of the
 steps.  The ordering of steps is important because the next step
 involves binding the steps together into that order.  At this point it
-is good to remember that a Monad is a way of creating the illusion of
+is good to remember that a monad is a way of creating the illusion of
 imperative steps in a purely functional way where all functions can be
-run at any time.  Once this is done, the the constructed Lwt promise
-is passed to `Lwt_main.run`.
-
-The first stitching together a run order for the steps is done
-synchonously before it is handed off to Lwt for processing.
-Additionally, since it calls `Lwt_main.run`, Cucumber.ml assumes that
-it is the only promise running.  This could change based on user
-feedback.
+run at any time.  Once this is done, `execute` will pass the
+constructed monads back to the user as a list.  At this point, the
+user may bind more functions or whatever the user needs to do.  It is
+good to remember that the first stitching together a run order for the
+steps is done synchonously before the monads are handed back to the
+user for further processing or running by `Lwt_main.run`.
 

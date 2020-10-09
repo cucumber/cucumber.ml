@@ -22,4 +22,4 @@ val _After : (string -> unit Lwt.t) -> 'a t -> 'a t
 
 val set_dialect : Dialect.t -> 'a t -> 'a t
   
-val execute : 'a t -> string -> string option -> ('a option * OutcomeManager.t) list
+val execute : 'a t -> string -> string option -> ('a option * OutcomeManager.t) Lwt.t list

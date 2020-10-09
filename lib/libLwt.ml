@@ -56,7 +56,7 @@ let match_stepdefs step_defs pickle_step =
        >>=
        (fun _ -> Lwt.return (None, OutcomeManager.create (Some Outcome.Undefined))))
     
-let construct_computation cucc pickle =
+let construct_monadic_pickles cucc pickle =
   let pickle_steps = Pickle.steps pickle in
   let steps_to_run = Base.List.rev (Base.List.fold pickle_steps ~init:[]
                        ~f:(fun accum s ->
@@ -77,19 +77,19 @@ let execute cucc file_name tag_expr =
   let pickles = Pickle.load_feature_file
                   (Dialect.string_of_dialect cucc.dialect)
                   file_name in
-  let computations =
+  let tags =
+    match tag_expr with
+    | Some str ->
+       Tag.list_of_string str
+    | None ->
+       Tag.list_of_string ""
+  in  
+  let monadic_pickles =
     match pickles with
     | [] ->
        [Lwt.return (None, OutcomeManager.create (Some Outcome.Undefined))]
     | _ ->
-       let tags =
-         match tag_expr with
-         | Some str ->
-            Tag.list_of_string str
-         | None ->
-            Tag.list_of_string ""
-       in      
        let runnable_pickles = Pickle.filter_pickles tags pickles in
-       Base.List.map runnable_pickles ~f:(construct_computation cucc)
+       Base.List.map runnable_pickles ~f:(construct_monadic_pickles cucc)
   in
-  Lwt_main.run (Lwt.all computations)
+  monadic_pickles

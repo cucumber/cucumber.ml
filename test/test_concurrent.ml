@@ -82,7 +82,8 @@ let foo = Cucumber.LibLwt.empty
                second_then_func)
           
 let _ =
-  Base.List.iter (Cucumber.LibLwt.execute foo "test/test_parallel.feature" None)
+  let pickles = (Cucumber.LibLwt.execute foo "test/test_concurrent.feature" None) in
+  Base.List.iter (Lwt_main.run (Lwt.all pickles))
     ~f:(fun (world, o) ->
       match world with
       | Some x ->
