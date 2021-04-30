@@ -83,12 +83,15 @@ let foo = Cucumber.LibLwt.empty
           
 let _ =
   let pickles = (Cucumber.LibLwt.execute foo "test/test_concurrent.feature" None) in
-  Base.List.iter (Lwt_main.run (Lwt.all pickles))
-    ~f:(fun (world, o) ->
-      match world with
-      | Some x ->
-         print_endline (string_of_int x.foo);
-         print_endline (Cucumber.OutcomeManager.string_of_states o);
-      | None ->
-         print_endline "Something went wrong"
-    )
+  Lwt_main.run begin
+      (Lwt.all pickles)
+      >>=
+        Lwt_list.iter_p (fun (world, o) ->
+            match world with
+            | Some x ->
+               Lwt_io.printl (string_of_int x.foo)
+                 >>= (fun _ -> Lwt_io.printl (Cucumber.OutcomeManager.string_of_states o))
+            | None ->
+               Lwt_io.printl "Something went wrong"
+          )            
+      end 
