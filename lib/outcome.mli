@@ -24,4 +24,3 @@ val print_outcomes : t list -> unit
 (** calculate the exit status based on the list of outcomes.  If any
    are other than Pass, the exit status returned is non-zero *)
 val exit_status : t list -> int
-    

@@ -33,12 +33,19 @@ ocamlfind.
 
 ## Overall Structure
 
+Cucumber.ml is split between two modules: `Cucumber.Lib` and
+`Cucumber.LibLwt`.
+
 Cucumber.ml is a library that is used to create an executable runtime
-of step definitions.  This means that the library assumes that, once
-`execute` is called, the library will read the command line arguments
-for feature files.  The user of the library does not need to specify
-command line options as the library will read them itself to determine
-what feature files an other things to run.
+of step definitions.  The synchronous version of the library assumes
+that, once `execute` is called, the library will read the command line
+arguments for feature files.  The user of the library does not need to
+specify command line options as the library will read them itself to
+determine what feature files an other things to run.  The concurrent
+version of the library, on the other hand, requires that the user
+provide the tags as a string and a list of paths to files (see
+`test/test_concurrent.ml`) for information on the design of the
+concurrent version see below.
 
 ```ocaml
 type world = { foo : bool }
@@ -97,4 +104,59 @@ This will report back using the compact notation for Cucumber (dots
 for pass, F or fail, P for pending, and U for undefined).
 
 
+# Cucumber Lwt
+
+To allow concurrency, Lwt support is included.  This is fairly similar
+to the synchronous version given above but with a few important changes
+to the function signatures.  To separate the differing
+implementations, the user will need to use the `Cucumber.LibLwt`
+module rather than the `Cucumber.Lib` module.
+
+The function signature for a normal step definition is:
+
+```ocaml
+Re.Group.t option -> Step.arg option -> ('a option * OutcomeManager.t) -> ('a option * OutcomeManager.t) Lwt.t
+```
+
+The main portion of the function signature that the user needs to pay
+attention to is the `('a option * OutcomeManager.t) -> ('a option *
+OutcomeManager.t) Lwt.t `.  The step definition function now takes a
+tuple which has two members: the state of the step and the
+`OutcomeManager`.  The `OutcomeManager` saves the outcomes from all
+steps.  The user can only add to the `OutcomeManager`, which is meant
+to assure the user that steps have not changed the outcome of any
+previous steps.  Although, there is a flaw in the design where the
+step can return an entirely new and empty `OutcomeManager`; although,
+returning a fresh `OutcomeManager` would be self-defeating.
+
+The return value of the step definition is an Lwt promise which can
+have any state to pass forward to the next step and an updated
+OutcomeManager where the outcome of the step is recorded by using the
+`OutcomeManager.add` function.  
+
+There are examples of use in the `test/test_concurrent.ml` and a feature
+file that will trigger the step definitions in
+`test/test_concurrent.feature`.
+
+# Design of Concurrent Cucumber
+
+The way in which Cucumber.ml works is that the user supplies regular
+expressions which match the steps in the feature.  To facilitate this,
+Cucumber.ml takes a two step approach.  First, it takes the various
+steps definitions and hook definitions and stores them in a context.
+Second, once that context has been build to the user's satisfaction,
+the user calls the `execute` function.  What this does is load the
+feature file then it matches the tags so that there is a list of
+runnable pickles.  Next, it matches the runnable pickles against the
+regular expressions given by the user which gives an ordering of the
+steps.  The ordering of steps is important because the next step
+involves binding the steps together into that order.  At this point it
+is good to remember that a monad is a way of creating the illusion of
+imperative steps in a purely functional way where all functions can be
+run at any time.  Once this is done, `execute` will pass the
+constructed monads back to the user as a list.  At this point, the
+user may bind more functions or whatever the user needs to do.  It is
+good to remember that the first stitching together a run order for the
+steps is done synchronously before the monads are handed back to the
+user for further processing or running by `Lwt_main.run`.
 

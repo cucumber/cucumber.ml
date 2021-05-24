@@ -39,3 +39,4 @@ let exit_status outcome_list =
 
 let string_of_outcomes outcomes =
   Base.String.concat ~sep:"" (Base.List.map outcomes ~f:(string_of_outcome))
+

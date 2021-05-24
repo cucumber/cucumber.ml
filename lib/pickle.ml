@@ -53,3 +53,9 @@ let filter_pickles tags pickles =
   | (allowed, disallowed) ->
      let filtered_pickles = Base.List.rev_filter pickles ~f:(pickles_exists allowed) in
      Base.List.rev_filter filtered_pickles ~f:(fun p -> not (pickles_exists disallowed p))
+
+let construct_hooks hooks p =
+  let fired_hooks = Base.List.map hooks ~f:(fun h -> h p.name) in
+  Lwt.join fired_hooks
+  
+  
