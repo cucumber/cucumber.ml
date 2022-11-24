@@ -11,10 +11,10 @@
    (copy gherkin-c/libs/libgherkin.so.7.0.4 dllgherkin-c.so)))))
 
 (library
-	(name cucumber)
-	(public_name cucumber)
-	(libraries cmdliner re re.perl base)
-	(synopsis "BDD style testing for OCaml")
-	(foreign_archives gherkin-c)
-	(foreign_stubs (language c) (names gherkin_intf)))
+ (name cucumber)
+ (public_name cucumber)
+ (libraries cmdliner re re.perl base)
+ (synopsis "BDD style testing for OCaml")
+ (foreign_archives gherkin-c)
+ (foreign_stubs (language c) (names gherkin_intf)))
 
