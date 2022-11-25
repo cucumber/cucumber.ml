@@ -10,7 +10,7 @@ bug-reports: "https://github.com/cucumber/cucumber.ml/issues"
 depends: [
   "dune" {>= "3.2"}
   "re" {>= "1.9.0"}
-  "base" {>= "v0.14.0"}
+  "base" {>= "v0.15.1"}
   "cmdliner" {>= "1.1"}
   "odoc" {with-doc}
 ]

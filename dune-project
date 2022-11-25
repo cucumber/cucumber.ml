@@ -13,5 +13,5 @@
  (description "Cucumber BDD for OCaml using the gherkin-c library to parse")
  (depends
   (re (>= 1.9.0))
-  (base (>= v0.14.0))
+  (base (>= v0.15.1))
   (cmdliner (>= 1.1))))
