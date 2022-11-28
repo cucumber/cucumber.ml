@@ -1,10 +1,8 @@
-(** Location
+(** A type representing a location within a Gherkin feature file. *)
 
-    All Gherkin AST records have a location stored.  This module is
-    that location information for those.
-*)
 type t
 
+(** Pretty print a string from a [t]. *)
 val string_of_location : t -> string
 
 (** This is to support Tags which are passed in via the command

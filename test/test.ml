@@ -2,7 +2,7 @@ open Cucumber.Lib
 
 type world = { foo : bool }
 
-let man_state curr_state next_state = 
+let man_state curr_state next_state =
     match curr_state with
   | Some x ->
      print_endline ("my state is " ^ (string_of_bool x.foo));
@@ -12,7 +12,7 @@ let man_state curr_state next_state =
      (Some { foo = next_state }, Cucumber.Outcome.Pass)
      
 (* users can use the pipeline operator *)
-let foo = 
+let foo =
   empty
   |> set_dialect Cucumber.Dialect.En
   |> _After
@@ -39,8 +39,8 @@ let foo =
     _Then
       (Re.Perl.compile_pat "I should receive the test results")
       (fun state group args ->
-        print_endline "Then";              
-        man_state state true)            
+        print_endline "Then";
+        man_state state true)
 
 (* or they can use a list then use a fold function to build up the run *)
 let bar = [
@@ -57,10 +57,10 @@ let bar = [
     _Then
       (Re.Perl.compile_pat "I should receive the test results")
       (fun state group args ->
-        print_endline "Then";              
+        print_endline "Then";
         man_state state true)
   ]
-          
+
 let _ =
-  let _cucc = Base.List.fold bar ~init:empty ~f:(fun accum stepdef -> stepdef accum) in
+  let _cucc = Base.List.fold bar ~init:Cucumber.Lib.empty ~f:(fun accum stepdef -> stepdef accum) in
   execute foo

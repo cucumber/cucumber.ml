@@ -39,7 +39,7 @@ of step definitions.  This means that the library assumes that, once
 `execute` is called, the library will read the command line arguments
 for feature files.  The user of the library does not need to specify
 command line options as the library will read them itself to determine
-what feature files an other things to run.
+what feature files and other things to run.
 
 ```ocaml
 open Cucumber.Lib

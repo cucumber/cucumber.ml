@@ -1,6 +1,6 @@
-(** Datatables
+(** Module implementing Cucumber Data Tables.
 
-    This module implements Cucumber Datatables.  For instance:
+   For example the following Given step defines a Data Table.
 
     Given the following users exist:
     | name   | email              | twitter         |
@@ -13,12 +13,12 @@ type t
 
 val string_of_table : t -> string
 
-(** Returns a Base.Map.t with the first row as the key values and the column values
+(** Returns a [Base.Map.t] with the first row as the key values and the column values
    as a list which is returned when the key value is given. *)
 val to_map_with_header : t -> (Base.String.t, Base.String.t list, Base.String.comparator_witness) Base.Map.t
 
 (**
-   Returns a Base.Map.t with the first column as the key values with the rest of the column values
+   Returns a [Base.Map.t] with the first column as the key values with the rest of the column values
    stored as list.
  *)
 val to_map_with_col_header : t -> (Base.String.t, Base.String.t list, Base.String.comparator_witness) Base.Map.t
@@ -42,7 +42,7 @@ val transform : t -> (Base.String.t Base.List.t -> 'a) -> 'a Base.List.t
    a:b,c
 
  *)
-val transform_with_header : t -> (Base.String.t Base.List.t -> Base.String.t Base.List.t -> 'a) -> 'a Base.List.t
+val transform_with_header : t -> (string list -> string list -> 'a) -> 'a list
 
 (** Applies a user supplied function to the datatable with the first column used as the header.
     For instance,
@@ -58,4 +58,4 @@ val transform_with_header : t -> (Base.String.t Base.List.t -> Base.String.t Bas
     where a,b,c will be given as the first parameter then the rest of the row will be supplied as a
     list.
  *)
-val transform_with_col_header : t -> (string -> string Base.List.t -> 'a) -> 'a Base.List.t
+val transform_with_col_header : t -> (string -> string list -> 'a) -> 'a list
