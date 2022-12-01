@@ -1,0 +1,54 @@
+name: Test cucumber
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 5 * * *"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-12
+          - ubuntu-22.04
+          - windows-2022
+
+        ocaml-compiler:
+          # Test the oldest OCaml version and the two newest versions.
+          - 4.10.x
+          - 4.13.x
+          - 4.14.x
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - name: Install dependencies
+        run: |
+          opam install . --deps-only --with-test
+
+      - name: Build
+        run: |
+          opam exec -- dune build @all
+
+      - name: Tests
+        run: |
+          opam exec -- dune build @runtest
+
+      - name: Opam Lint
+        run: |
+          opam lint cucumber.opam 
