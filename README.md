@@ -13,6 +13,7 @@ current project.  This means that you will need to init the submodule
 after you checkout the repository like so:
 
 ```bash
+git submodule init
 git submodule update
 ``` 
 
