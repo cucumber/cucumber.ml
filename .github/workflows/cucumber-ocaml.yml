@@ -18,7 +18,6 @@ jobs:
         os:
           - macos-12
           - ubuntu-22.04
-          - windows-2022
 
         ocaml-compiler:
           # Test the oldest OCaml version and the two newest versions.
@@ -31,6 +30,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Use OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v2
