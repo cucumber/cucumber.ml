@@ -1,16 +1,20 @@
-(** Outcome
-    This module records the outcome of a user run step definition.
-*)
+(** A type representing the outcome of a user run step defintion. *)
+
 type t = Pass | Fail | Pending | Undefined | Skip
 
-(** Returns a string of the outcome.  This will be:
-    . -> Pass
-    "F" -> Fail
-    "P" -> Pending
-    "U" -> Undefined
-    "-" -> Skip
+(** Pretty print a string of the outcome.  
+
+    This will be:
+    {ul {- . -> Pass}
+        {- "F" -> Fail}
+        {- "P" -> Pending}
+        {- "U" -> Undefined}
+        {- "-" -> Skip}
+    }
  *)
 val string_of_outcome: t -> string
+
+(** Pretty print [t list] as a string. *)
 val string_of_outcomes : t list -> string
 
 val count_outcome : t -> t list -> int
@@ -21,7 +25,8 @@ val count_pending : t list -> int
 val count_passed : t list -> int
 val print_outcomes : t list -> unit
 
-(** calculate the exit status based on the list of outcomes.  If any
-   are other than Pass, the exit status returned is non-zero *)
+(** Calculate the exit status based on the list of outcomes.  
+
+    If any are other than Pass, the exit status returned is non-zero *)
 val exit_status : t list -> int
     

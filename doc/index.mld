@@ -1,0 +1,157 @@
+{0:top OCaml Cucumber}
+
+[Cucumber] is an OCaml library implementing the Cucumber feature file language {b Gherkin} and associated
+functionality for specifying the execution of those feature files.
+
+Cucumber is a Domain Specific language used to implement automated tests based on scenarios 
+described in Gherkin feature files. For more detail about Cucumber see {{:https://cucumber.io/docs/cucumber/}}.
+
+{1:installing Installing}
+
+{2:install-source Source Code}
+
+The source code for [Cucumber] can be found at {{: https://github.com/cucumber/cucumber.ml}cucumber/cucumber.ml},
+it uses the {{:https://dune.readthedocs.io/}dune} build system and {{:https://opam.ocaml.org}opam} for package management.
+
+{2:install-opam Using opam}
+
+You can install [Cucumber] using [opam] by following the instructions below:
+
+{v
+opam install cucumber
+v}
+
+{1:fundamentals Fundamentals}
+
+The OCaml Cucumber library support parsing Cucumber feature files, running feature files and defining
+steps implementing the behaviour per step, along with additional helper functions for using Cucumber.
+
+Cucumber can be used to implement automated tests based on scenarios described in your Gherkin feature files.
+For a full introduction to using Cucumber we recommend starting with {{:https://cucumber.io/docs/guides/overview/} What is Cucumber?}. In this documentation we will only cover how to use the OCaml pieces. 
+
+{2:feature-file Writing a Cucumber feature}
+
+Starting with an example Cucumber feature file of:
+
+{[
+Scenario: Some camels
+  Given I have 1 camel on my farm
+  When I buy 2 more camels
+  Then I have 3 camels on my farm
+]}
+
+We are describing our successful dromidary farm, where we start with 1 camel and add further camels.
+It might not be much but a camel farmer needs to start somewhere. Next we need to create a runner for
+our features.
+
+{2:run-cucumber Cucumber Runner}
+
+Assuming you are using Dune, create a directory with a `dune` file like so:
+
+{[
+(executable
+ (librarie cucumber)
+ (package cucumber)
+ (public_names cucumber)
+ (modules cucumber)
+ (names cucumer))
+]}
+
+This defines an excutable `cucumber` that we will use to run our features.
+Next create a `cucumber.ml` file in that same directory.
+
+{[
+(* Bring the Gherkin DSL into scope *)
+open Cucumber.Lib
+
+(* Create an minimal set of Steps *)
+let steps = 
+  empty
+  |> set_dialect Cucumber.Dialect.En
+
+(* Execute the steps *)
+let () = 
+  execute steps
+]}
+
+Then this feature can be run as `dune exec -- cucumber camels.feature`. At this
+point we haven't provided an implementation for steps so will see something like
+
+{[
+$ dune exec -- cucumber camels.feature
+Could not find step: I have 1 camel on my farm
+Feature File: camels.feature
+1 scenarios (1 undefined)
+3 steps (1 undefined, 2 skipped)
+U--
+
+Cucumber.ml: Some scenarios failed. Please see output for more details
+]}
+
+{2:implementing-step Step Defintions}
+To get our features working we need to provide implementations for each of the steps.
+The implementations for Given, When, Then steps have a similar API, they all require
+a regex pattern to match against the step in the feature file. Extracting substrings
+of the pattern as variables, using the Perl regex library. The group argument is
+the results of applying the regex to the feature file, with `Re.Group.get_opt group 1`
+extracting the first match. Use 2 etc for getting additional matches. Consult the documentation
+for the Re regular expression library, in particular the Group module for the API to extract matches.
+
+{[
+type farm = { camels: int}
+
+let steps = 
+  empty
+  |> set_dialect Cucumber.Dialect.En
+  |> _Given (Re.Perl.compile_pat "I have (\\d+) camel on my farm")
+       (fun state group args -> 
+         let no_camels = Option.bind group (fun g -> Re.Group.get_opt g 1)
+                         |> Option.map (fun f -> int_of_string_opt f)
+                         |> Option.join
+                         |> Option.value ~default:0 in
+         pass_with_state { camels = no_camels }
+       )
+
+  |> _When (Re.Perl.compile_pat "I buy (\\d+) more camels")
+       (fun state group args -> 
+         let more_camels = Option.bind group (fun g -> Re.Group.get_opt g 1)
+                         |> Option.map (fun f -> int_of_string_opt f)
+                         |> Option.join
+                           |> Option.value ~default:0 in
+         let state = match state with
+           | None -> failwith "No state"
+           | Some state -> state
+         in
+         pass_with_state { camels = state.camels + more_camels }
+       )
+  |> _Then (Re.Perl.compile_pat "I have (\\d+) camels on my farm")
+       (fun state group args -> 
+         let camels = Option.bind group (fun g -> Re.Group.get_opt g 1)
+                      |> Option.map (fun f -> int_of_string_opt f)
+                      |> Option.join
+                      |> Option.value ~default:0 in
+         let state = match state with
+           | None -> failwith "No state"
+           | Some state -> state
+         in
+         if (state.camels == camels) then (Some state, Cucumber.Outcome.Pass)
+         else (Some state, Cucumber.Outcome.Fail)
+       )
+]}
+
+Consult the full API for further details of creating Step implementations. The working code for this
+example is available in {{:https://github.com/cucumber/cucumber.ml/example}} and can be run using
+{[dune exec -- camels camels.feature]}
+
+{1:full Cucumber API}
+
+{!modules: Cucumber.Lib Cucumber.Pickle}
+
+{1:resources Resources}
+
+The Cucumber documentaion is available at {{:https://cucumber.io/docs/cucumber/}} it goes further
+detail about the Gherkin syntax, writing tests using Cucumber and many other topics.
+
+{1:bugs Bugs}
+Please file any issues encountered at {{:https://github.com/cucumber/cucumber.ml/issues}}
+

@@ -102,8 +102,13 @@ let execute_pickle_lst cucc tags exit_status feature_file =
      else
        exit_status
 
-let files_arg = Cmdliner.Arg.(non_empty & pos_all file [] & info [] ~docv:"FILE" ~doc:"List of feature files to run")
-let tags_arg = Cmdliner.Arg.(value & opt (some string) None & info ["tags"] ~docv:"TAGS" ~doc:"Listing tags allows the use of the tagging feature of Cucumber.  The format is @tag to a feature or step to run and ~@tag to disallow a tag from running. Tags are seperated by a space (the comma for 'or' is not supported). For instance, --tags \"@tag1 ~@tag2\" will run features/steps tagged with @tag1 and will not run features/steps with @tag2.")
+open Cmdliner
+
+let files_arg =
+  Arg.(non_empty & pos_all file [] & info [] ~docv:"FILE" ~doc:"List of feature files to run")
+
+let tags_arg = 
+  Arg.(value & opt (some string) None & info ["tags"] ~docv:"TAGS" ~doc:"Listing tags allows the use of the tagging feature of Cucumber.  The format is @tag to a feature or step to run and ~@tag to disallow a tag from running. Tags are seperated by a space (the comma for 'or' is not supported). For instance, --tags \"@tag1 ~@tag2\" will run features/steps tagged with @tag1 and will not run features/steps with @tag2.")
              
 let manage_command_line cucc tags_str files =
   let tags =
@@ -115,18 +120,19 @@ let manage_command_line cucc tags_str files =
   in
   let exit_status = Base.List.fold files ~init:0 ~f:(execute_pickle_lst cucc tags) in
   if exit_status = 0 then
-    `Ok 0
+    Result.Ok ()
   else
-    `Error (false, "Some scenarios failed. Please see output for more details")
+    Result.Error "Some scenarios failed. Please see output for more details"
   
 let cmd cucc =
-  Cmdliner.Term.(ret (const (manage_command_line cucc) $ tags_arg $ files_arg)),
-  Cmdliner.Term.info "Cucumber.ml" ~version:"1.0.3" ~doc:"Run Cucumber Stepdefs" ~exits:Cmdliner.Term.default_exits
+  let term = Term.((const (manage_command_line cucc) $ tags_arg $ files_arg)) in
+  let info = Cmd.info "Cucumber.ml" ~version:"1.0.3" ~doc:"Run Cucumber Stepdefs" in
+  Cmd.v info term 
   
 (** Executes current Cucumber context and exits the process.
  *)
 let execute cucc =
-  Cmdliner.Term.(exit @@ eval (cmd cucc))
+  exit @@ Cmd.eval_result (cmd cucc)
 
 let fail = (None, Outcome.Fail)
 let pass = (None, Outcome.Pass)

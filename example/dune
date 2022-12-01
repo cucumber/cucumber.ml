@@ -1,0 +1,5 @@
+(executable
+ (libraries cucumber)
+ (flags
+  (:standard -w -27))
+ (name camels))

@@ -1,0 +1,8 @@
+(executables
+ (libraries cucumber)
+ (package cucumber)
+ (public_names cucumber)
+ (modules test)
+ (flags
+  (:standard -w -27))
+ (names test))

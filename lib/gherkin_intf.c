@@ -4,23 +4,24 @@
 #include <wchar.h>
 #include <string.h>
 
-#include "gherkin-c/include/file_reader.h"
-#include "gherkin-c/include/source_event.h"
-#include "gherkin-c/include/token_scanner.h"
-#include "gherkin-c/include/token_matcher.h"
-#include "gherkin-c/include/string_token_scanner.h"
-#include "gherkin-c/include/parser.h"
-#include "gherkin-c/include/ast_builder.h"
-#include "gherkin-c/include/gherkin_document_event.h"
-#include "gherkin-c/include/compiler.h"
-#include "gherkin-c/include/event.h"
+#include "gherkin-c/c/include/file_reader.h"
+#include "gherkin-c/c/include/source_event.h"
+#include "gherkin-c/c/include/token_scanner.h"
+#include "gherkin-c/c/include/token_matcher.h"
+#include "gherkin-c/c/include/string_token_scanner.h"
+#include "gherkin-c/c/include/parser.h"
+#include "gherkin-c/c/include/ast_builder.h"
+#include "gherkin-c/c/include/incrementing_id_generator.h"
+#include "gherkin-c/c/include/gherkin_document_event.h"
+#include "gherkin-c/c/include/compiler.h"
+#include "gherkin-c/c/include/event.h"
 
-#include "gherkin-c/include/pickle_argument.h"
-#include "gherkin-c/include/pickle_string.h"
-#include "gherkin-c/include/pickle_event.h"
-#include "gherkin-c/include/pickle_table.h"
-#include "gherkin-c/include/pickle_row.h"
-#include "gherkin-c/include/pickle_cell.h"
+#include "gherkin-c/c/include/pickle_argument.h"
+#include "gherkin-c/c/include/pickle_string.h"
+#include "gherkin-c/c/include/pickle_event.h"
+#include "gherkin-c/c/include/pickle_table.h"
+#include "gherkin-c/c/include/pickle_row.h"
+#include "gherkin-c/c/include/pickle_cell.h"
 
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
@@ -29,12 +30,12 @@
 
 char * char_of_wchar(const wchar_t *);
 wchar_t * wchar_of_char(const char *);
-CAMLprim value process_gherkin_document(const char *, SourceEvent *, Builder *);
+CAMLprim value process_gherkin_document(const char *, SourceEvent *, Builder *, IdGenerator *);
 CAMLprim value load_feature_file(value, value);
 CAMLprim value create_ocaml_pickle(const Pickle *);
-CAMLprim value create_ocaml_loc_list(const PickleLocations *);
+CAMLprim value create_ocaml_id_list(const PickleAstNodeIds *);
 CAMLprim value create_ocaml_tag_list(const PickleTags *);
-CAMLprim value create_ocaml_loc(const PickleLocation *);
+CAMLprim value create_ocaml_id(const PickleAstNodeId *);
 CAMLprim value create_ocaml_tag(const PickleTag *);
 CAMLprim value create_ocaml_step_list(const PickleSteps *);
 CAMLprim value create_ocaml_step(const PickleStep *);
@@ -59,7 +60,8 @@ CAMLprim value load_feature_file(value dialect, value fileName) {
   SourceEvent *source_event = SourceEvent_new(sFileName, FileReader_read(file_reader));
   TokenScanner *token_scanner = StringTokenScanner_new(source_event->source);
   TokenMatcher* token_matcher = TokenMatcher_new(wchar_of_char(sDialect));
-  Builder* builder = AstBuilder_new();
+  IdGenerator* id_generator = IncrementingIdGenerator_new();
+  Builder* builder = AstBuilder_new(id_generator);
   Parser* parser = Parser_new(builder);
 
   int result_code = Parser_parse(parser, token_matcher, token_scanner);
@@ -67,7 +69,7 @@ CAMLprim value load_feature_file(value dialect, value fileName) {
   oPickleList = Val_emptylist;
   
   if(result_code == 0) {
-    oPickleList = process_gherkin_document(sFileName, source_event, builder);
+    oPickleList = process_gherkin_document(sFileName, source_event, builder, id_generator);
   } else {
     while(Parser_has_more_errors(parser)) {
       Error *error = Parser_next_error(parser);
@@ -96,13 +98,14 @@ CAMLprim value load_feature_file(value dialect, value fileName) {
 
 CAMLprim value process_gherkin_document(const char *sFileName,
 					SourceEvent *source_event,
-					Builder *builder) {
+					Builder *builder,
+					IdGenerator *id_generator) {
   CAMLparam0();
   CAMLlocal3(oPickleList, oPickle, cons);
 
   oPickleList = Val_emptylist;
 
-  Compiler* compiler = Compiler_new();
+  Compiler* compiler = Compiler_new(id_generator);
   const GherkinDocumentEvent* gherkin_document_event = GherkinDocumentEvent_new(AstBuilder_get_result(builder, sFileName));
   int result_code = Compiler_compile(compiler, gherkin_document_event->gherkin_document, source_event->source);
 
@@ -139,7 +142,7 @@ CAMLprim value create_ocaml_pickle(const Pickle *pickle) {
   char *lang = char_of_wchar(pickle->language);
   char *name = char_of_wchar(pickle->name);
   
-  oLocList = create_ocaml_loc_list(pickle->locations);
+  oLocList = create_ocaml_id_list(pickle->ast_node_ids);
   oTagList = create_ocaml_tag_list(pickle->tags);
   oStepList = create_ocaml_step_list(pickle->steps);
   
@@ -155,39 +158,42 @@ CAMLprim value create_ocaml_pickle(const Pickle *pickle) {
   CAMLreturn(oPickle);
 }
 
-CAMLprim value create_ocaml_loc_list(const PickleLocations *locs) {
+CAMLprim value create_ocaml_id_list(const PickleAstNodeIds *ids) {
   CAMLparam0();
-  CAMLlocal3(oLocList, oLoc, cons);
+  CAMLlocal3(oIdList, oId, cons);
 
-  oLocList = Val_emptylist;
+  oIdList = Val_emptylist;
 
-  if(locs == NULL) {
-    CAMLreturn(oLocList);
+  if(ids == NULL) {
+    CAMLreturn(oIdList);
   }
   
-  for(int i = 0; i < locs->location_count; ++i) {
+  for(int i = 0; i < ids->ast_node_id_count; ++i) {
     cons = caml_alloc(2, 0);
-    oLoc = create_ocaml_loc(&locs->locations[i]);
+    oId = create_ocaml_id(&ids->ast_node_ids[i]);
     
-    Store_field(cons, 0, oLoc);
-    Store_field(cons, 1, oLocList);
+    Store_field(cons, 0, oId);
+    Store_field(cons, 1, oIdList);
 
-    oLocList = cons;
+    oIdList = cons;
   }
 
-  CAMLreturn(oLocList);
+  CAMLreturn(oIdList);
 }
 
-CAMLprim value create_ocaml_loc(const PickleLocation *loc) {
+CAMLprim value create_ocaml_id(const PickleAstNodeId *id) {
   CAMLparam0();
-  CAMLlocal1(oLoc);
+  CAMLlocal1(oId);
   
-  oLoc = caml_alloc(2, 0);
+  oId = caml_alloc(1, 0);
   
-  Store_field(oLoc, 0, caml_copy_int32(loc->line));
-  Store_field(oLoc, 1, caml_copy_int32(loc->column));
+  char *ast_node_id = char_of_wchar(id->id);
 
-  CAMLreturn(oLoc);
+  Store_field(oId, 0, caml_copy_string(ast_node_id));
+
+  free(ast_node_id);
+
+  CAMLreturn(oId);
 }
 
 CAMLprim value create_ocaml_tag(const PickleTag *tag) {
@@ -198,7 +204,7 @@ CAMLprim value create_ocaml_tag(const PickleTag *tag) {
 
   char *name = char_of_wchar(tag->name);
   
-  Store_field(oTag, 0, create_ocaml_loc(&tag->location));
+  Store_field(oTag, 0, create_ocaml_id(&tag->ast_node_id));
   Store_field(oTag, 1, caml_copy_string(name));
 
   free(name);
@@ -234,7 +240,7 @@ CAMLprim value create_ocaml_step(const PickleStep *step) {
 
     oStep = caml_alloc(3, 0);
 
-    Store_field(oStep, 0, create_ocaml_loc_list(step->locations));
+    Store_field(oStep, 0, create_ocaml_id_list(step->ast_node_ids));
 
     char *text = char_of_wchar(step->text);
     
@@ -297,13 +303,12 @@ CAMLprim value create_ocaml_docstring(const PickleArgument *arg) {
   CAMLparam0();
   CAMLlocal1(oDocString);
 
-  oDocString = caml_alloc(2, 0);
+  oDocString = caml_alloc(1, 0);
 
   const PickleString *docstring = (const PickleString*) arg;
   char *content = char_of_wchar(docstring->content);
   
-  Store_field(oDocString, 0, create_ocaml_loc(&docstring->location));
-  Store_field(oDocString, 1, caml_copy_string(content));
+  Store_field(oDocString, 0, caml_copy_string(content));
 
   free(content);
 
@@ -369,10 +374,9 @@ CAMLprim value create_ocaml_table_cell(const PickleCell *cell) {
   CAMLparam0();
   CAMLlocal1(oCell);
 
-  oCell = caml_alloc(2, 0);
+  oCell = caml_alloc(1, 0);
   char *val = char_of_wchar(cell->value);
     
-  Store_field(oCell, 0, create_ocaml_loc(cell->location));
   Store_field(oCell, 1, caml_copy_string(val));
 
   free(val);

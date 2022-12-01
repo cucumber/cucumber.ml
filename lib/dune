@@ -1,20 +1,23 @@
+(library
+ (name cucumber)
+ (public_name cucumber)
+ (foreign_archives gherkin-c)
+ (libraries cmdliner re re.perl base)
+ (foreign_stubs
+  (language c)
+  (names gherkin_intf)
+  (include_dirs %{project_root}/lib/gherkin-c/c/include)
+  (flags :standard)))
+
 (data_only_dirs gherkin-c)
 
 (rule
- (deps (source_tree gherkin-c))
+ (deps (source_tree %{project_root}/lib/gherkin-c))
  (targets libgherkin-c.a dllgherkin-c.so)
  (action
- (no-infer
-  (progn
-   (chdir gherkin-c (run make libs libs_so))
-   (copy gherkin-c/libs/libgherkin.a libgherkin-c.a)
-   (copy gherkin-c/libs/libgherkin.so.7.0.4 dllgherkin-c.so)))))
-
-(library
-	(name cucumber)
-	(public_name cucumber)
-	(libraries cmdliner re re.perl base)
-	(synopsis "BDD style testing for OCaml")
-	(foreign_archives gherkin-c)
-	(foreign_stubs (language c) (names gherkin_intf)))
+  (no-infer
+   (progn
+    (chdir %{project_root}/lib/gherkin-c/c (run make libs libs_so))
+    (copy %{project_root}/lib/gherkin-c/c/libs/libgherkin.a libgherkin-c.a)
+    (copy %{project_root}/lib/gherkin-c/c/libs/libgherkin.so.25.0.2 dllgherkin-c.so)))))
 
