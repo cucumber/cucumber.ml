@@ -18,7 +18,6 @@ jobs:
         os:
           - macos-12
           - ubuntu-22.04
-          - windows-2022
 
         ocaml-compiler:
           # Test the oldest OCaml version and the two newest versions.
